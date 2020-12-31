@@ -8,166 +8,137 @@ require_once 'components/head.php';
 ?>
 
 <body>
-    <div class="super_container">
 
-        <!-- Header -->
+    <?php
+    require './components/header.php';
+    if (!isset($_SESSION['id'])) {
+    ?>
 
-        <header class="header trans_300">
+        <div class="background_fix background_filter">
 
-            <div class="top_nav">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-6">
+        </div>
 
-                            <!--ใส่ได้-->
+        <div class="main_slider" style="background-image:url(images/header-bg.jpg)">
+            <div class="container fill_height">
+                <div class="row align-items-center fill_height">
+                    <div class="col">
+                    </div>
+                </div>
+            </div>
+        </div>
 
-
-                        </div>
-                        <div class="col-md-6 text-right">
-                            <div class="top_nav_right">
-                                <ul class="top_nav_menu">
-
-
-                                    <li class="account">
-                                        <a href="#">
-                                            My Account
-                                            <i class="fa fa-angle-down"></i>
-                                        </a>
-                                        <ul class="account_selection">
-                                            <?php
-                                            require_once 'components/nav.php';
-                                            ?>
-
-                                        </ul>
-                                    </li>
-                                </ul>
+        <div style="height: 300px;">
+            <div class="container fill_height">
+                <div class="row align-items-center fill_height">
+                    <div class="col order_background">
+                        <div class="row">
+                            <div class="col-12 text-right">
+                                <h1>สั่งอาหารคลีนกับเรา สั่งเลย!
+                                    <?= $_SESSION['id'] ?></h1>
+                                <!-- <p>asdahsiudhu</p> -->
+                                <button class="btn btn-primary">สั่งเลย</button>
                             </div>
+                            <!-- <div class="col-6 text-right">
+                        </div> -->
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Main Navigation -->
-
-            <?php
-            require_once 'components/subheader.php';
-            ?>
-
-        </header>
-    </div>
-
-
-    <!-- Slider -->
-
-    <div class="main_slider" style="background-image:url(images/bgg1.png)">
+        </div>
+        <div></div>
+        <!-- <div style="margin-top: 0;height: 300px">
+        <div class="restaurant_background background_filter"></div>
         <div class="container fill_height">
             <div class="row align-items-center fill_height">
-                <div class="col">
-                    <div class="main_slider_content">
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!--
-             Banner 
-
-            <div class="banner">
-                <div class="container">
+                <div class="col ">
+                    <h1>มาร่วมเป็นร้านค้ากับเรา</h1>
+                    <p>asdahsiudhu</p>
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="banner_item align-items-center" style="background-image:url(images/thaiherb.png)">
-                                <div class="banner_category">
-                                    <a href="Food.php">Clean Food</a>
-                                </div>
-                            </div>
+                        <div class="col-6">asdasdasdasd</div>
+                        <div class="col-6 text-right">
+                            <button class="btn btn-primary">asdasodho</button>
                         </div>
-                        <div class="col-md-6">
-                            <div class="banner_item align-items-center" style="background-image:url(images/chinaherb.jpg)">
-                                <div class="banner_category">
-                                    <a href="Desserts.php">Clean Desserts</a>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>-->
-
-    <!-- New Arrivals -->
-
-    <div class="new_arrivals">
-        <div class="container">
-            <div class="row">
-                <div class="col text-center">
-                    <div class="section_title new_arrivals_title">
-                        <h2>ทานง่าย ไม่เพิ่มพุง</h2>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col">
-                    <div class="product-grid" data-isotope='{ "itemSelector": ".product-item", "layoutMode": "fitRows" }'>
-
-                        <?php
-                        $sql = "SELECT * FROM item WHERE type_disease = 'อาหารคลีน' ORDER by id limit 5";
-                        $result = mysqli_query($conn, $sql);
-                        if ($result) { // ->query($sql)) {
-                            echo mysqli_num_rows($result) . "adawdwad";
-                            if (mysqli_num_rows($result) > 0) {
-                                while ($row = mysqli_fetch_assoc($result)) {
-                        ?>
-                                    <div class="product-item men">
-                                        <div class="product discount product_filter">
-                                            <div class="product_image">
-                                                <img src="images/food/<?php echo $row['item_image'] ?> " alt="">
-                                            </div>
-                                            <div class="favorite favorite_left"></div>
-                                            <!--                                                    <div class="product_bubble product_bubble_right product_bubble_red d-flex flex-column align-items-center"><span>-$20</span></div>-->
-                                            <div class="product_info">
-                                                <h6 class="product_name"><a href="single.php?id=<?php echo $row['id'] ?>  "> <?php echo $row['item_name'] ?> </a></h6>
-                                                <div class="product_price"><?php echo $row['item_price'] ?> บาท</div>
-                                            </div>
-                                        </div>
-                                        <div class="red_button add_to_cart_button"><a href="single.php?id=<?php echo $row['id'] ?>  "> add to cart</a></div>
-
-                                    </div>
-                        <?php
-                                }
-                            }
-                        }
-                        ?>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- Best Sellers -->
+    </div> -->
 
-    <div class="best_sellers">
-        <div class="container">
-            <div class="row">
-                <div class="col text-center">
-                    <div class="section_title new_arrivals_title">
-                        <h2> อ้วนน้อยอร่อยหนัก </h2>
+
+        <div class="banner backgrund_w_content" style="padding-top: 40px;">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="banner_item align-items-center" style="background-image:url(https://paapaii.com/wp-content/uploads/2018/12/PB110193.jpg)">
+                            <div class="banner_category text-right">
+                                <h3>สมัครเป็นร้านอาหารกับเรา</h3>
+                                <a href="register-restaurant.php" class="text-right">
+                                    <button class="btn btn-primary">สมัครเลย</button>
+                                </a>
+                            </div>
+                        </div>
                     </div>
+                    <div class="col-md-6">
+                        <div class="banner_item align-items-center" style="background-image:url(images/chinaherb.jpg)">
+                            <div class="banner_category  text-right">
+                                <h3>มาร่วมเป็นส่วนนึงในครอบครัวพนักงานขนส่งของเรา</h3>
+                                <a href="register-rider.php" class="text-right">
+                                    <button class="btn btn-primary">สมัครเลย</button>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
-            <div class="row">
-                <div class="col">
-                    <div class="product_slider_container">
-                        <div class="owl-carousel owl-theme product_slider">
+        </div>
 
-                            <?php
-                            $sql = "SELECT * FROM item WHERE type_disease = 'ขนมคลีน' ORDER by id limit 8 ";
-                            $result = mysqli_query($conn, $sql); //->query($sql);
+    <?php
+    } else {
 
-                            if ($result) {
-                                if (mysqli_num_rows($result) > 0) {
-                                    while ($row = mysqli_fetch_assoc($result)) {
-                            ?>
+        $products = [];
+        // Check new product
+        $timeNewProduct = strtotime('-1 day', time());
+        // Query data
+        $sql = "SELECT * FROM `product` ORDER BY id DESC";
+        $result = mysqli_query($conn, $sql);
+        if ($result) {
+            if (mysqli_num_rows($result)) {
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $product = new Product;
+                    $product->id = $row['id'];
+                    $product->name = $row['name'];
+                    $product->img = $row['img'];
+                    $product->genre = $row['genre'];
+                    $product->price = $row['price'];
+                    $product->description = $row['description'];
+                    $product->created_at = $row['created_at'];
+                    $products[$row['id']] = $product;
+                }
+            }
+        }
+    ?>
+
+
+
+        <div class="best_sellers">
+            <div class="container">
+                <div class="row">
+                    <div class="col text-center">
+                        <div class="section_title new_arrivals_title">
+                            <h2> ทานง่าย ไม่เพิ่มพุง </h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="product_slider_container">
+                            <div class="owl-carousel owl-theme product_slider">
+
+                                <?php
+                                foreach ($products as $product) {
+                                    if ($product->genre == "food") {
+                                ?>
 
                                         <!-- Slide 2 -->
 
@@ -175,44 +146,170 @@ require_once 'components/head.php';
                                             <div class="product-item women">
                                                 <div class="product">
                                                     <div class="product_image">
-                                                        <img src="images/dessert/<?php echo $row['item_image'] ?>" alt="">
+                                                        <img src="images/product/<?= $product->img ?>" alt="">
                                                     </div>
                                                     <div class="favorite"></div>
                                                     <div class="product_bubble product_bubble_left product_bubble_green d-flex flex-column align-items-center"><span>new</span></div>
                                                     <div class="product_info">
-                                                        <h6 class="product_name"><a href="single.php?id=<?php echo $row['id'] ?>  "> <?php echo $row['item_name'] ?> </a></h6>
-                                                        <div class="product_price"><?php echo $row['item_price'] ?> บาท</div>
+                                                        <h6 class="product_name"><a href="cart.php?product_id=<?= $product->id ?>  "> <?= $product->name ?> </a></h6>
+                                                        <div class="product_price"><?= $product->price ?> บาท</div>
 
                                                     </div>
-                                                    <div class="red_button add_to_cart_button"><a href="single.php?id=<?php echo $row['id'] ?>  "> add to cart</a></div>
+                                                    <div class="red_button add_to_cart_button"><a href="cart.php?product_id=<?= $product->id ?>  "> add to cart</a></div>
                                                 </div>
                                             </div>
                                         </div>
-                            <?php
+                                <?php
                                     }
                                 }
-                            }
-                            ?>
+                                ?>
 
-                        </div>
+                            </div>
 
-                        <!-- Slider Navigation -->
+                            <!-- Slider Navigation -->
 
-                        <div class="product_slider_nav_left product_slider_nav d-flex align-items-center justify-content-center flex-column">
-                            <i class="fa fa-chevron-left" aria-hidden="true"></i>
-                        </div>
-                        <div class="product_slider_nav_right product_slider_nav d-flex align-items-center justify-content-center flex-column">
-                            <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                            <div class="product_slider_nav_left product_slider_nav d-flex align-items-center justify-content-center flex-column">
+                                <i class="fa fa-chevron-left" aria-hidden="true"></i>
+                            </div>
+                            <div class="product_slider_nav_right product_slider_nav d-flex align-items-center justify-content-center flex-column">
+                                <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+        <!-- 
+        <div class="new_arrivals backgrund_w_content">
+            <div class="container">
+                <div class="row">
+                    <div class="col text-center">
+                        <div class="section_title new_arrivals_title">
+                            <h2>อ้วนน้อยอร่อยหนัก</h2>
+                        </div>
+                    </div>
+                </div>
 
-    <!-- Benefit -->
+                <div class="row">
+                    <div class="col">
+                        <div class="product-grid" data-isotope='{ "itemSelector": ".product-item", "layoutMode": "fitRows" }'>
 
-    <div class="benefit">
+
+
+                            <?php
+                            foreach ($products as $product) {
+                                if ($product->genre == "sweet") {
+                            ?>
+
+                                    <div class="product-item men">
+                                        <div class="product discount product_filter">
+                                            <div class="product_image">
+                                                <img src="images/product/<?= $product->img ?>" alt="">
+                                            </div>
+
+                                            <div class="favorite favorite_left"></div>
+                                            <?php
+                                            if (strtotime($product->created_at) > $timeNewProduct) {
+                                            ?>
+                                                <div class="product_bubble product_bubble_left product_bubble_green d-flex flex-column align-items-center"><span>new</span></div>
+                                            <?php
+                                            }
+                                            ?>
+
+                                            <div class="product_info">
+                                                <h6 class="product_name"><a href="cart.php?product_id=<?= $product->id ?>"> <?= $product->name ?> </a></h6>
+                                                <div class="product_price">
+                                                    <?= $product->price ?>
+                                                    บาท</div>
+                                            </div>
+                                        </div>
+                                        <div class="red_button add_to_cart_button"><a href="cart.php?product_id=<?= $product->id ?>  "> add to cart</a>
+                                        </div>
+
+                                    </div>
+                            <?php
+                                }
+                            }
+                            ?>
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+
+        <div class="best_sellers">
+            <div class="container">
+                <div class="row">
+                    <div class="col text-center">
+                        <div class="section_title new_arrivals_title">
+                            <h2> อ้วนน้อยอร่อยหนัก </h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="product_slider_container">
+                            <div class="owl-carousel owl-theme product_slider">
+
+                                <?php
+                                foreach ($products as $product) {
+                                    if ($product->genre == "sweet") {
+                                ?>
+
+                                        <!-- Slide 2 -->
+
+                                        <div class="owl-item product_slider_item">
+                                            <div class="product-item women">
+                                                <div class="product">
+                                                    <div class="product_image">
+                                                        <img src="images/product/<?= $product->img ?>" alt="">
+                                                    </div>
+                                                    <div class="favorite"></div>
+                                                    <div class="product_bubble product_bubble_left product_bubble_green d-flex flex-column align-items-center"><span>new</span></div>
+                                                    <div class="product_info">
+                                                        <h6 class="product_name"><a href="cart.php?product_id=<?= $product->id ?>  "> <?= $product->name ?> </a></h6>
+                                                        <div class="product_price"><?= $product->price ?> บาท</div>
+
+                                                    </div>
+                                                    <div class="red_button add_to_cart_button"><a href="cart.php?product_id=<?= $product->id ?>  "> add to cart</a></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                <?php
+                                    }
+                                }
+                                ?>
+
+                            </div>
+
+                            <!-- Slider Navigation -->
+
+                            <div class="product_slider_nav_left product_slider_nav d-flex align-items-center justify-content-center flex-column">
+                                <i class="fa fa-chevron-left" aria-hidden="true"></i>
+                            </div>
+                            <div class="product_slider_nav_right product_slider_nav d-flex align-items-center justify-content-center flex-column">
+                                <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <?php
+    }
+    ?>
+
+
+
+
+
+
+
+    <div class="benefit backgrund_w_content" style="padding: 100px 0;">
         <div class="container">
             <div class="row benefit_row">
                 <div class="col-lg-3 benefit_col">
@@ -255,7 +352,6 @@ require_once 'components/head.php';
         </div>
     </div>
 
-    <br><br><br>
 
 
 
@@ -298,7 +394,6 @@ require_once 'components/head.php';
             </footer>
 
         </div>-->
-
 
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
