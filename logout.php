@@ -2,6 +2,9 @@
 session_start();
 session_destroy();
 require './components/head.php';
+
+
+header("Refresh:4; index.php");
 ?>
 <script>
     setTimeout(() => {

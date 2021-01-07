@@ -82,10 +82,9 @@ img {
 }
 
 .wrap {
-  width: 75%;
-  max-width: 960px;
+  width: 100%;
   margin: 0 auto;
-  padding: 5% 0;
+  padding: 20px 0;
   margin-bottom: 5em;
 }
 
@@ -119,7 +118,7 @@ img {
   font-size: .75em;
   padding: 1em;
   color: #fff;
-  background: #82ca9c;
+  background: #fe4c50;
   font-weight: bold;
   border-radius: 50px;
   float: right;
@@ -204,7 +203,7 @@ img {
   color: #333;
 }
 .cart .items .cartSection p.stockStatus {
-  color: #82CA9C;
+  color: #fe4c50;
   font-weight: bold;
   padding: .5em 0 0 1em;
   text-transform: uppercase;
@@ -302,7 +301,7 @@ a.remove:hover {
   padding: .75em 0;
   border-radius: 0 1em 1em 0;
   text-align: center;
-  border: 1px solid #82ca9c;
+  border: 1px solid #fe4c50;
 }
 .promoCode a.btn:hover {
   border: 1px solid #f69679;
@@ -315,7 +314,7 @@ a.remove:hover {
   font-size: 1em;
   padding: 1em 3em;
   color: #fff;
-  background: #82ca9c;
+  background: #fe4c50;
   font-weight: bold;
   border-radius: 50px;
   float: right;

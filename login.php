@@ -1,5 +1,10 @@
 <?php
 require 'condb.php';
+
+if (isset($_SESSION['id'])) {
+    header("Refresh:0; index.php");
+}
+
 $is_login = false;
 $login_succes = false;
 if (isset($_POST['username']) && isset($_POST['password'])) {
@@ -15,14 +20,14 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
     $is_login = true;
     if ($result) {
         if (mysqli_num_rows($result) > 0) {
-            while ($row = $result->fetch_assoc()) {
+            while ($row = mysqli_fetch_assoc($result)) {
                 $_SESSION['type'] = $row['type'];
                 $_SESSION['id'] = $row['id'];
                 $_SESSION['username'] = $row['username'];
 
-                if ($row['rider_id'] != null) {
+                if (isset($row['rider_id'])) {
                     $_SESSION['rider_id'] = $row['rider_id'];
-                } elseif ($row['restaurant_id'] != null) {
+                } elseif (isset($row['restaurant_id'])) {
                     $_SESSION['restaurant_id'] = $row['restaurant_id'];
                 }
                 $login_succes = true;
@@ -30,6 +35,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
         }
     }
 }
+https: //www.google.co.th/maps/place/
 ?>
 <script>
     setTimeout(() => {

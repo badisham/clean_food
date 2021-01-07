@@ -4,6 +4,10 @@ require 'condb.php';
 $is_upsert = false;
 $upsert_success = false;
 $restaurant_id = 0;
+$select_day = isset($_GET['select_day']) ? $_GET['select_day'] : "";
+$select_genre = isset($_GET['select_genre']) ? $_GET['select_genre'] : "";
+
+
 if ($_SESSION['restaurant_id'] && isset($_SESSION['id'])) {
   $restaurant_id = $_SESSION['restaurant_id'];
   require 'service/product.php';
@@ -15,9 +19,6 @@ if ($_SESSION['restaurant_id'] && isset($_SESSION['id'])) {
 } else {
   header("Refresh:0; login.php");
 }
-
-
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -36,14 +37,39 @@ require_once 'components/head.php';
       width: 100px;
     }
 
-    .product_table table tbody td {
+    .product_table tbody td,
+    .product_table thead th {
       text-align: center;
+      vertical-align: middle !important;
     }
   </style>
   <div class="container layout-1">
     <div class="row mt-4">
       <div class="col-md-8" style="max-height: 620px;overflow-y: scroll;">
-        <table class="table table-striped product_table">
+        <form class="form-inline" method="get" action="restaurant-profile.php">
+          <div class="form-group mt-4">
+            <select class="form-control" id="select_genre" name="select_genre" onchange="OnSelect()">
+              <option value="">-- ทุกประเภท --</option>
+              <option value="food" <?= $select_genre == "food" ? "selected" : "" ?>>อาหาร</option>
+              <option value="sweet" <?= $select_genre == "sweet" ? "selected" : "" ?>>ของหวาน</option>
+            </select>
+          </div>
+          <div class="form-group mt-4 ml-2">
+            <select class="form-control" id="select_day" name="select_day" onchange="OnSelect()">
+              <option value="">-- ทุกวัน --</option>
+              <option value="sunday" <?= $select_day == "sunday" ? "selected" : "" ?>>วันอาทิตย์</option>
+              <option value="monday" <?= $select_day == "monday" ? "selected" : "" ?>>วันจันทร์</option>
+              <option value="tuesday" <?= $select_day == "tuesday" ? "selected" : "" ?>>วันอังคาร</option>
+              <option value="wednesday" <?= $select_day == "wednesday" ? "selected" : "" ?>>วันพุธ</option>
+              <option value="thursday" <?= $select_day == "thursday" ? "selected" : "" ?>>วันพฤหัสบดี</option>
+              <option value="friday" <?= $select_day == "friday" ? "selected" : "" ?>>วันศุกร์</option>
+              <option value="saturday" <?= $select_day == "saturday" ? "selected" : "" ?>>วันเสาร์</option>
+            </select>
+          </div>
+          <input type="submit" id="select_filter" style="display: none;">
+        </form>
+
+        <table class="table table-striped product_table mt-2">
           <thead>
             <tr>
               <th scope="col">#</th>
@@ -57,7 +83,9 @@ require_once 'components/head.php';
           <tbody>
             <?php
             $products = [];
-            $sql = "SELECT * FROM `product` WHERE restaurant_id = '$restaurant_id' ORDER BY id DESC";
+            $query_type = $select_genre != "" ? "AND genre = '$select_genre'" : "";
+            $query_day = $select_day != "" ? "AND day LIKE '%$select_day%'" : "";
+            $sql = "SELECT * FROM `product` WHERE restaurant_id = '$restaurant_id' $query_type $query_day ORDER BY id DESC";
             $result = mysqli_query($conn, $sql);
 
             if ($result) {
@@ -71,13 +99,17 @@ require_once 'components/head.php';
                   $product->genre = $row['genre'];
                   $product->price = $row['price'];
                   $product->description = $row['description'];
+                  $product->day = explode(",", $row['day']);
                   $products[$row['id']] = $product;
             ?>
                   <tr>
                     <th scope="row"><?= $row['id']; ?></th>
                     <td><img src="images/product/<?= $product->img ?>" alt=""></td>
                     <td><?= $product->name ?></td>
-                    <td><?= $product->genre ?></td>
+                    <td>
+                      <?= $product->genre == "food" ? "อาหาร" : "" ?>
+                      <?= $product->genre == "sweet" ? "ของหวาน" : "" ?>
+                    </td>
                     <td><?= $product->price ?></td>
                     <td class="text-right">
                       <button class="btn btn-warning" onclick="SetUpdateProduct(<?= $product->id ?>)">แก้ไข</button>
@@ -104,11 +136,45 @@ require_once 'components/head.php';
           <div class="form-group mt-4">
             <label for="genre">ประเภท</label>
             <select class="form-control" id="genre" name="genre" required>
-              <option>เลือก</option>
+              <option value="">เลือก</option>
               <option value="food">อาหาร</option>
               <option value="sweet">ของหวาน</option>
             </select>
           </div>
+
+          <div style="border: 2px solid #ccc;border-radius: 5px;padding: 10px;">
+            <h5>เลือกวันทำออเดอร์</h5>
+            <div class="form-check form-switch">
+              <input class="form-check-input" name="day[]" value="sunday" type="checkbox" id="sunday" checked>
+              <label class="form-check-label" for="sunday">วันอาทิตย์</label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" name="day[]" value="monday" type="checkbox" id="monday" checked>
+              <label class="form-check-label" for="monday">วันจันทร์</label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" name="day[]" value="tuesday" type="checkbox" id="tuesday" checked>
+              <label class="form-check-label" for="tuesday">วันอังคาร</label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" name="day[]" value="wednesday" type="checkbox" id="wednesday" checked>
+              <label class="form-check-label" for="wednesday">วันพุธ</label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" name="day[]" value="thursday" type="checkbox" id="thursday" checked>
+              <label class="form-check-label" for="thursday">วันพฤหัสบดี</label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" name="day[]" value="friday" type="checkbox" id="friday" checked>
+              <label class="form-check-label" for="friday">วันศุกร์</label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" name="day[]" value="saturday" type="checkbox" id="saturday" checked>
+              <label class="form-check-label" for="saturday">วันเสาร์</label>
+            </div>
+
+          </div>
+
           <div class="form-group mt-4">
             <label for="description">รายละเอียด</label>
             <textarea name="description" class="form-control" id="description" cols="10" rows="3" placeholder="รายละเอียด" required></textarea>
@@ -127,7 +193,7 @@ require_once 'components/head.php';
       </div>
     </div>
 
-    <div class="row mt-4">
+    <!-- <div class="row mt-4">
       <div class="col-12">
         <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
           แก้ไขข้อมูลร้าน
@@ -153,7 +219,7 @@ require_once 'components/head.php';
           </form>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 
 
@@ -180,16 +246,36 @@ require_once 'components/head.php';
       $("#price").val(products[id].price);
       $("#btn_submit").val('put');
       $('#btn_cancel').show();
+
+      $('#sunday').prop("checked", products[id].day.includes('sunday'));
+      $('#monday').prop("checked", products[id].day.includes('monday'));
+      $('#tuesday').prop("checked", products[id].day.includes('tuesday'));
+      $('#wednesday').prop("checked", products[id].day.includes('wednesday'));
+      $('#thursday').prop("checked", products[id].day.includes('thursday'));
+      $('#friday').prop("checked", products[id].day.includes('friday'));
+      $('#saturday').prop("checked", products[id].day.includes('saturday'));
     }
 
     function CancelUpdateProduct() {
       $('#title_product').html("เพิ่มสินค้า");
       $("#product_name").val(null);
-      $("#genre").val();
+      $("#genre").val("");
       $("#description").val(null);
       $("#price").val(1);
       $("#btn_submit").val('post');
       $('#btn_cancel').hide();
+
+      $('#sunday').prop("checked", true);
+      $('#monday').prop("checked", true);
+      $('#tuesday').prop("checked", true);
+      $('#wednesday').prop("checked", true);
+      $('#thursday').prop("checked", true);
+      $('#friday').prop("checked", true);
+      $('#saturday').prop("checked", true);
+    }
+
+    function OnSelect() {
+      $('#select_filter').click();
     }
 
     function DeleteProduct(id) {

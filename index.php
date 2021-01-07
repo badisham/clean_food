@@ -33,10 +33,9 @@ require_once 'components/head.php';
                     <div class="col order_background">
                         <div class="row">
                             <div class="col-12 text-right">
-                                <h1>สั่งอาหารคลีนกับเรา สั่งเลย!
-                                    <?= $_SESSION['id'] ?></h1>
-                                <!-- <p>asdahsiudhu</p> -->
-                                <button class="btn btn-primary">สั่งเลย</button>
+                                <h1>สั่งอาหารคลีนกับเรา
+                                    <!-- <p>asdahsiudhu</p> -->
+                                    <a href="login.php" class="btn btn-primary">สั่งเลย !</a>
                             </div>
                             <!-- <div class="col-6 text-right">
                         </div> -->
@@ -65,7 +64,7 @@ require_once 'components/head.php';
     </div> -->
 
 
-        <div class="banner backgrund_w_content" style="padding-top: 40px;">
+        <div class="banner backgrund_w_content" style="padding: 40px 0;">
             <div class="container">
                 <div class="row">
                     <div class="col-md-6">
@@ -100,7 +99,12 @@ require_once 'components/head.php';
         // Check new product
         $timeNewProduct = strtotime('-1 day', time());
         // Query data
-        $sql = "SELECT * FROM `product` ORDER BY id DESC";
+        $query_restaurant = "";
+        if (isset($_SESSION['restaurant_id'])) {
+            $query_restaurant = "WHERE restaurant_id !='" . $_SESSION['restaurant_id'] . "'";
+        }
+        $sql = "SELECT * FROM `product` $query_restaurant ORDER BY id DESC";
+
         $result = mysqli_query($conn, $sql);
         if ($result) {
             if (mysqli_num_rows($result)) {
@@ -111,6 +115,7 @@ require_once 'components/head.php';
                     $product->img = $row['img'];
                     $product->genre = $row['genre'];
                     $product->price = $row['price'];
+                    $product->day = $row['day'];
                     $product->description = $row['description'];
                     $product->created_at = $row['created_at'];
                     $products[$row['id']] = $product;
@@ -121,7 +126,7 @@ require_once 'components/head.php';
 
 
 
-        <div class="best_sellers">
+        <div class="best_sellers" style="margin-top: 150px;">
             <div class="container">
                 <div class="row">
                     <div class="col text-center">
@@ -137,7 +142,8 @@ require_once 'components/head.php';
 
                                 <?php
                                 foreach ($products as $product) {
-                                    if ($product->genre == "food") {
+                                    if ($product->genre == "food" && $product->day != "") {
+
                                 ?>
 
                                         <!-- Slide 2 -->
@@ -145,17 +151,18 @@ require_once 'components/head.php';
                                         <div class="owl-item product_slider_item">
                                             <div class="product-item women">
                                                 <div class="product">
-                                                    <div class="product_image">
-                                                        <img src="images/product/<?= $product->img ?>" alt="">
+                                                    <div class="slide_image" style="background-image: url(images/product/<?= $product->img ?>);">
                                                     </div>
+
                                                     <div class="favorite"></div>
-                                                    <div class="product_bubble product_bubble_left product_bubble_green d-flex flex-column align-items-center"><span>new</span></div>
+                                                    <?= CheckNewByDate($product->created_at); ?>
                                                     <div class="product_info">
                                                         <h6 class="product_name"><a href="cart.php?product_id=<?= $product->id ?>  "> <?= $product->name ?> </a></h6>
+                                                        <p>ส่งออเดอร์ครั้งต่อไปวันที่ <?= GetNextDay($product->day) ?></p>
                                                         <div class="product_price"><?= $product->price ?> บาท</div>
 
                                                     </div>
-                                                    <div class="red_button add_to_cart_button"><a href="cart.php?product_id=<?= $product->id ?>  "> add to cart</a></div>
+                                                    <div class="red_button add_to_cart_button"><a href="cart.php?product_id=<?= $product->id ?>  "> เพิ่มลงตะกร้า</a></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -179,66 +186,6 @@ require_once 'components/head.php';
                 </div>
             </div>
         </div>
-        <!-- 
-        <div class="new_arrivals backgrund_w_content">
-            <div class="container">
-                <div class="row">
-                    <div class="col text-center">
-                        <div class="section_title new_arrivals_title">
-                            <h2>อ้วนน้อยอร่อยหนัก</h2>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col">
-                        <div class="product-grid" data-isotope='{ "itemSelector": ".product-item", "layoutMode": "fitRows" }'>
-
-
-
-                            <?php
-                            foreach ($products as $product) {
-                                if ($product->genre == "sweet") {
-                            ?>
-
-                                    <div class="product-item men">
-                                        <div class="product discount product_filter">
-                                            <div class="product_image">
-                                                <img src="images/product/<?= $product->img ?>" alt="">
-                                            </div>
-
-                                            <div class="favorite favorite_left"></div>
-                                            <?php
-                                            if (strtotime($product->created_at) > $timeNewProduct) {
-                                            ?>
-                                                <div class="product_bubble product_bubble_left product_bubble_green d-flex flex-column align-items-center"><span>new</span></div>
-                                            <?php
-                                            }
-                                            ?>
-
-                                            <div class="product_info">
-                                                <h6 class="product_name"><a href="cart.php?product_id=<?= $product->id ?>"> <?= $product->name ?> </a></h6>
-                                                <div class="product_price">
-                                                    <?= $product->price ?>
-                                                    บาท</div>
-                                            </div>
-                                        </div>
-                                        <div class="red_button add_to_cart_button"><a href="cart.php?product_id=<?= $product->id ?>  "> add to cart</a>
-                                        </div>
-
-                                    </div>
-                            <?php
-                                }
-                            }
-                            ?>
-
-
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div> -->
 
         <div class="best_sellers">
             <div class="container">
@@ -256,7 +203,7 @@ require_once 'components/head.php';
 
                                 <?php
                                 foreach ($products as $product) {
-                                    if ($product->genre == "sweet") {
+                                    if ($product->genre == "sweet" && $product->day != "") {
                                 ?>
 
                                         <!-- Slide 2 -->
@@ -264,17 +211,17 @@ require_once 'components/head.php';
                                         <div class="owl-item product_slider_item">
                                             <div class="product-item women">
                                                 <div class="product">
-                                                    <div class="product_image">
-                                                        <img src="images/product/<?= $product->img ?>" alt="">
+                                                    <div class="slide_image" style="background-image: url(images/product/<?= $product->img ?>);">
                                                     </div>
+
                                                     <div class="favorite"></div>
-                                                    <div class="product_bubble product_bubble_left product_bubble_green d-flex flex-column align-items-center"><span>new</span></div>
+                                                    <?= CheckNewByDate($product->created_at); ?>
                                                     <div class="product_info">
                                                         <h6 class="product_name"><a href="cart.php?product_id=<?= $product->id ?>  "> <?= $product->name ?> </a></h6>
+                                                        <p>ส่งออเดอร์ครั้งต่อไปวันที่ <?= GetNextDay($product->day) ?></p>
                                                         <div class="product_price"><?= $product->price ?> บาท</div>
-
                                                     </div>
-                                                    <div class="red_button add_to_cart_button"><a href="cart.php?product_id=<?= $product->id ?>  "> add to cart</a></div>
+                                                    <div class="red_button add_to_cart_button"><a href="cart.php?product_id=<?= $product->id ?>  "> เพิ่มลงตะกร้า</a></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -303,55 +250,9 @@ require_once 'components/head.php';
     }
     ?>
 
-
-
-
-
-
-
-    <div class="benefit backgrund_w_content" style="padding: 100px 0;">
-        <div class="container">
-            <div class="row benefit_row">
-                <div class="col-lg-3 benefit_col">
-                    <div class="benefit_item d-flex flex-row align-items-center">
-                        <div class="benefit_icon"><i class="fa fa-truck" aria-hidden="true"></i></div>
-                        <div class="benefit_content">
-                            <h6>free shipping</h6>
-                            <p>Suffered Alteration in Some Form</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 benefit_col">
-                    <div class="benefit_item d-flex flex-row align-items-center">
-                        <div class="benefit_icon"><i class="fa fa-money" aria-hidden="true"></i></div>
-                        <div class="benefit_content">
-                            <h6>cach on delivery</h6>
-                            <p>The Internet Tend To Repeat</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 benefit_col">
-                    <div class="benefit_item d-flex flex-row align-items-center">
-                        <div class="benefit_icon"><i class="fa fa-undo" aria-hidden="true"></i></div>
-                        <div class="benefit_content">
-                            <h6>45 days return</h6>
-                            <p>Making it Look Like Readable</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 benefit_col">
-                    <div class="benefit_item d-flex flex-row align-items-center">
-                        <div class="benefit_icon"><i class="fa fa-clock-o" aria-hidden="true"></i></div>
-                        <div class="benefit_content">
-                            <h6>opening all week</h6>
-                            <p>24 HOUR</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <?php
+    require 'components/benefit.php';
+    ?>
 
 
 

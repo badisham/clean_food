@@ -1,12 +1,18 @@
 <?php
 require 'condb.php';
-
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <?php
 require_once 'components/head.php';
+$is_regis = false;
+$regis_success = false;
+if (isset($_POST['username'])) {
+    require 'service/register.php';
+    $is_regis = true;
+    $regis_success = Register($conn);
+}
+
 ?>
 <style>
     #restaurant-register>*,
@@ -27,7 +33,7 @@ require_once 'components/head.php';
         <div class="container">
             <div id="restaurant-register" class="form-wrap" style="margin-top: 200px;">
 
-                <form action="upload.php" method="post" enctype="multipart/form-data">
+                <form action="register-rider.php" method="post" enctype="multipart/form-data">
                     <div class="row mt-4 shadow-lg pt-4 pb-4">
 
                         <div class="col-md-6 content_register">
@@ -48,7 +54,7 @@ require_once 'components/head.php';
                             <div id="loginwithemail">
                                 <div class="form-group mt-4">
                                     <label for="inputFullName">ชื่อผู้ใช้งาน</label>
-                                    <input required type="text" class="form-control bg-light" name="username" value="" placeholder="ชื่อผู้ใช้งาน">
+                                    <input required type="text" class="form-control bg-light" name="username" placeholder="ชื่อผู้ใช้งาน">
                                 </div>
                                 <div class="form-group">
                                     <label for="inputPassword">รหัสผ่าน</label>
@@ -61,30 +67,30 @@ require_once 'components/head.php';
                                 </div> -->
                                 <div class="form-group mt-4">
                                     <label for="first_name">ชื่อ</label>
-                                    <input required type="text" class="form-control bg-light" id="first_name" name="first_name" value="" placeholder="ชื่อ">
+                                    <input required type="text" class="form-control bg-light" id="first_name" name="first_name" placeholder="ชื่อ">
                                 </div>
                                 <div class="form-group mt-4">
                                     <label for="last_name">นามสกุล</label>
-                                    <input required type="text" class="form-control bg-light" id="last_name" name="last_name" value="" placeholder="นามสกุล">
+                                    <input required type="text" class="form-control bg-light" id="last_name" name="last_name" placeholder="นามสกุล">
                                 </div>
 
                                 <div class="form-group mt-4">
                                     <label for="inputFullName">เบอร์โทรศัพท์</label>
-                                    <input required type="number" class="form-control bg-light" name="telephone" value="" placeholder="เบอร์โทรศัพท์">
+                                    <input required type="text" pattern="[0-9]+" class="form-control bg-light" maxlength="20" name="telephone" placeholder="เบอร์โทรศัพท์">
                                 </div>
 
                                 <div class="form-group mt-4">
                                     <label for="inputEmail">อีเมล์</label>
-                                    <input required type="email" class="form-control bg-light" name="email" value="" placeholder="email@example.com">
+                                    <input required type="email" class="form-control bg-light" name="email" placeholder="email@example.com">
                                 </div>
                                 <hr />
                                 <div class="form-group mt-4">
-                                    <label for="name_restaurant">เลขที่ใบขับขี่</label>
-                                    <input required type="text" id="name_restaurant" class="form-control bg-light" name="email" value="" placeholder="เลขที่ใบขับขี่">
+                                    <label for="rider_card_id">เลขที่ใบขับขี่</label>
+                                    <input required type="text" id="rider_card_id" pattern="[0-9]+" maxlength="20" class="form-control bg-light" name="rider_card_id" placeholder="เลขที่ใบขับขี่">
                                 </div>
                                 <div class="form-group mt-4">
-                                    <label for="genre">เลขบัตรประชาชน</label>
-                                    <input required type="text" id="name_restaurant" class="form-control bg-light" name="email" value="" placeholder="เลขบัตรประชาชน">
+                                    <label for="card_num_id">เลขบัตรประชาชน</label>
+                                    <input required type="text" id="card_num_id" pattern="[0-9]{13}" maxlength="13" class="form-control bg-light" name="card_num_id" placeholder="เลขบัตรประชาชน">
                                 </div>
                                 <div class="form-group mt-4">
                                     <label for="fileToUpload">รูปถ่ายบัตรประชาชน</label>
@@ -112,3 +118,15 @@ require_once 'components/head.php';
 </body>
 
 </html>
+
+<script>
+    setTimeout(() => {
+        if (<?= json_encode($is_regis) ?>) {
+            if (<?= json_encode($regis_success) ?>) {
+                SweetAlertOk('สมัครสมาชิกเรียบร้อย', 'success', 'index.php');
+            } else {
+                SweetAlert('ผิดพลาด', 'warning');
+            }
+        }
+    }, 100);
+</script>

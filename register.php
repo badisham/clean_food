@@ -5,6 +5,13 @@ require 'condb.php';
 <html lang="en">
 <?php
 require_once 'components/head.php';
+$is_regis = false;
+$regis_success = false;
+if (isset($_POST['username'])) {
+    require 'service/register.php';
+    $is_regis = true;
+    $regis_success = Register($conn);
+}
 ?>
 <style>
     #login {
@@ -22,7 +29,7 @@ require_once 'components/head.php';
         <div class="container">
             <div id="login" class="form-wrap">
 
-                <form method="POST" action="registerForm.php">
+                <form method="POST" action="register.php">
                     <div class="row mt-4 shadow-lg pt-4 pb-4">
 
                         <div class="col-12 text-center">
@@ -89,3 +96,15 @@ require_once 'components/head.php';
 </body>
 
 </html>
+
+<script>
+    setTimeout(() => {
+        if (<?= json_encode($is_regis) ?>) {
+            if (<?= json_encode($regis_success) ?>) {
+                SweetAlertOk('สมัครสมาชิกเรียบร้อย', 'success', 'index.php');
+            } else {
+                SweetAlert('ผิดพลาด', 'warning');
+            }
+        }
+    }, 100);
+</script>

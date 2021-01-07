@@ -1,6 +1,5 @@
 <?php
 require 'condb.php';
-require 'service/register.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -8,7 +7,8 @@ require 'service/register.php';
 require_once 'components/head.php';
 $is_regis = false;
 $regis_success = false;
-if(isset($_POST['username'])){
+if (isset($_POST['username'])) {
+    require 'service/register.php';
     $is_regis = true;
     $regis_success = Register($conn);
 }
@@ -81,8 +81,8 @@ if(isset($_POST['username'])){
                                 </div>
                                 <div class="form-group mt-4">
                                     <label for="description">รายละเอียดร้าน</label>
-                                    <textarea required type="text" id="description" class="form-control bg-light" name="description" placeholder="รายละเอียดร้าน" ></textarea>
-                                    </div>
+                                    <textarea required type="text" id="description" class="form-control bg-light" name="description" placeholder="รายละเอียดร้าน"></textarea>
+                                </div>
                                 <div class="form-group mt-4">
                                     <label for="genre">ประเภทร้าน</label>
                                     <select class="form-control" id="genre" name="genre">
@@ -90,6 +90,21 @@ if(isset($_POST['username'])){
                                         <option value="food">อาหาร</option>
                                         <option value="sweet">ของหวาน</option>
                                     </select>
+                                </div>
+                                <div class="form-group mt-4">
+                                    <label for="address">
+                                        ที่อยู่ร้าน
+                                    </label>
+                                    <div class="input-group">
+                                        <textarea class="form-control" name="address" id="address" cols="30" rows="2"></textarea>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <?php require './components/select-address.php'; ?>
+                                    <div class="form-group col-xs-4 col-md-4">
+                                        <label for="zip_code"></label>
+                                        <input type="text" id="zip_code" name="zip_code" class="form-control" placeholder="รหัสไปรษณีย์" required>
+                                    </div>
                                 </div>
                                 <div class="form-group mt-4">
                                     <label for="fileToUpload">รูปหน้าร้าน</label>
@@ -119,10 +134,10 @@ if(isset($_POST['username'])){
 
 <script>
     setTimeout(() => {
-        if(<?=json_encode($is_regis)?>){
-            if(<?=json_encode($regis_success)?>){
-                SweetAlertConfirm('สมัครสมาชิกเรียบร้อย', 'success', 'index.php');
-            }else{
+        if (<?= json_encode($is_regis) ?>) {
+            if (<?= json_encode($regis_success) ?>) {
+                SweetAlertOk('สมัครสมาชิกเรียบร้อย', 'success', 'index.php');
+            } else {
                 SweetAlert('ผิดพลาด', 'warning');
             }
         }
