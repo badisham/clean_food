@@ -1,5 +1,11 @@
 <?php
 require 'condb.php';
+
+if (!isset($_SESSION['id'])) {
+    header("Refresh:0; login.php");
+    return;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -10,21 +16,17 @@ require_once 'components/head.php';
 <body>
 
     <?php
-    if (!isset($_SESSION['id'])) {
-        header("Refresh:0; login.php");
-    }
-
     require './components/header.php';
 
 
     if (!isset($_GET['restaurant_id'])) {
-
+        $my_restauran_id = $_SESSION['restaurant_id'];
 
         $restaurants = [];
         // Check new product
         $timeNewProduct = strtotime('-1 day', time());
         // Query data
-        $sql = "SELECT * FROM `restaurant` ORDER BY id DESC";
+        $sql = "SELECT * FROM `restaurant` WHERE id != '$my_restauran_id' ORDER BY id DESC";
         $result = mysqli_query($conn, $sql);
         if ($result) {
             if (mysqli_num_rows($result)) {

@@ -105,9 +105,11 @@ require_once 'components/head.php';
                                             echo "<h4>รอวันจัดส่ง</h4>";
                                         } else if ($product->status == "cancel") {
                                             echo "<h4>ยกเลิกรายการ</h4>";
-                                        } else if ($product->status == "delivery") {
+                                        } else if ($product->status == "rider_recieve" || $product->status == 'call_rider') {
                                             echo '<img src="images/delivery.gif" style="width: 100px;height: 50px" alt="">';
                                             echo "<h4>กำลังจัดส่ง</h4>";
+                                        } else if ($product->status == 'success') {
+                                            echo "<h4>จัดส่งเรียบร้อย</h4>";
                                         }
                                         ?>
                                     </div>
