@@ -89,7 +89,7 @@ class Order
     public $order_product_list_id;
     public $status;
     public $user;
-    public $product;
+    public $price;
     public $restaurant;
     public $user_address;
     public $created_at;

@@ -16,6 +16,7 @@ if (isset($_SESSION['id'])) {
     }
 } else {
     header("Refresh:0; login.php");
+    return;
 }
 ?>
 

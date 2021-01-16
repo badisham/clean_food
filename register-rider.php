@@ -6,11 +6,11 @@ require 'condb.php';
 <?php
 require_once 'components/head.php';
 $is_regis = false;
-$regis_success = false;
+$regis_msg = "";
 if (isset($_POST['username'])) {
     require 'service/register.php';
     $is_regis = true;
-    $regis_success = Register($conn);
+    $regis_msg = Register($conn);
 }
 
 ?>
@@ -23,6 +23,23 @@ if (isset($_POST['username'])) {
         color: #fff !important;
     }
 </style>
+<script>
+    function CheckUsername(username) {
+        $.ajax({
+            type: "GET",
+            url: `./service/register.php?check_user=0&username=` + username,
+            success: function(response) {
+                if (response === 'false') {
+                    $('#username_true').hide();
+                    $('#username_false').show();
+                } else if (response === 'true') {
+                    $('#username_true').show();
+                    $('#username_false').hide();
+                }
+            }
+        });
+    }
+</script>
 
 <body>
     <div class="super_container">
@@ -33,7 +50,7 @@ if (isset($_POST['username'])) {
         <div class="container">
             <div id="restaurant-register" class="form-wrap" style="margin-top: 200px;">
 
-                <form action="register-rider.php" method="post" enctype="multipart/form-data">
+                <form action="register-rider.php" method="post" enctype="multipart/form-data" autocomplete="off">
                     <div class="row mt-4 shadow-lg pt-4 pb-4">
 
                         <div class="col-md-6 content_register">
@@ -54,11 +71,13 @@ if (isset($_POST['username'])) {
                             <div id="loginwithemail">
                                 <div class="form-group mt-4">
                                     <label for="inputFullName">ชื่อผู้ใช้งาน</label>
-                                    <input required type="text" class="form-control bg-light" name="username" placeholder="ชื่อผู้ใช้งาน">
+                                    <input required type="text" onblur="CheckUsername(this.value)" class="form-control bg-light" name="username" placeholder="ชื่อผู้ใช้งาน" minlength="8">
+                                    <p style="color: red !important;display: none;" id="username_false">มีชื่อผู้ใช้นี้แล้วในระบบ</p>
+                                    <p style="color: green !important;display: none;" id="username_true">สามารถใช้ชื่อผู้ใช้นี้ได้</p>
                                 </div>
                                 <div class="form-group">
                                     <label for="inputPassword">รหัสผ่าน</label>
-                                    <input required type="password" class="form-control bg-light" name="password" placeholder="••••••••">
+                                    <input required type="password" class="form-control bg-light" name="password" placeholder="รหัสผ่าน" minlength="8">
                                 </div>
                                 <!-- <div class="form-group">
                                     <label for="inputCfPassword">ยืนยันรหัสผ่าน</label>
@@ -122,11 +141,14 @@ if (isset($_POST['username'])) {
 <script>
     setTimeout(() => {
         if (<?= json_encode($is_regis) ?>) {
-            if (<?= json_encode($regis_success) ?>) {
+            if (<?= json_encode($regis_msg) ?> == 'success') {
                 SweetAlertOk('สมัครสมาชิกเรียบร้อย', 'success', 'index.php');
+            } else if (<?= json_encode($regis_msg) ?> == 'duplicate') {
+                SweetAlert('มีชื่อนี้ในระบบแล้ว', 'warning');
             } else {
                 SweetAlert('ผิดพลาด', 'warning');
             }
         }
+
     }, 100);
 </script>

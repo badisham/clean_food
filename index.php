@@ -101,9 +101,9 @@ require_once 'components/head.php';
         // Query data
         $query_restaurant = "";
         if (isset($_SESSION['restaurant_id'])) {
-            $query_restaurant = "WHERE restaurant_id !='" . $_SESSION['restaurant_id'] . "'";
+            $query_restaurant = "AND restaurant_id !='" . $_SESSION['restaurant_id'] . "'";
         }
-        $sql = "SELECT * FROM `product` $query_restaurant ORDER BY id DESC";
+        $sql = "SELECT * FROM `product` WHERE is_enable = '1' AND `day` != '' $query_restaurant ORDER BY id DESC";
 
         $result = mysqli_query($conn, $sql);
         if ($result) {
@@ -131,7 +131,8 @@ require_once 'components/head.php';
                 <div class="row">
                     <div class="col text-center">
                         <div class="section_title new_arrivals_title">
-                            <h2> ทานง่าย ไม่เพิ่มพุง </h2>
+                            <h2> ทานง่าย ไม่เพิ่มพุง
+                            </h2>
                         </div>
                     </div>
                 </div>

@@ -4,7 +4,7 @@ require 'service/upload-image.php';
 if (isset($_GET['id']) && isset($_GET['method']) && $_GET['method'] == "delete") {
     $id = $_GET['id'];
 
-    $sql = "DELETE FROM `product` WHERE id = '$id'";
+    $sql = "UPDATE `product` SET is_enable='0' WHERE id = '$id'";
     $result = mysqli_query($conn, $sql);
     if ($result) {
         $is_success = true;

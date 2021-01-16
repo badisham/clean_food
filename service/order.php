@@ -35,17 +35,18 @@ if (isset($_GET['order_product_list_id']) && isset($_GET['method']) && $_GET['me
     } else {
         header("Refresh:0; ../rider-order.php");
     }
-} else if (isset($_POST['product_id']) && isset($_POST['amount']) && isset($_POST['total_price'])) {
+} else if (isset($_POST['product_id']) && isset($_POST['amount']) && isset($_POST['total_price']) && isset($_POST['price'])) {
 
     $user_id = $_SESSION['id'];
     $product_ids = $_POST['product_id'];
     $cart_ids =  implode("','", $_POST['cart_id']);
     $amounts = $_POST['amount'];
+    $price = $_POST['price'];
     $total_price = $_POST['total_price'];
     $address_id = $_POST['select_address'];
 
     $pay_bill_success = false;
-    if (isset($_POST['select_payment']) && $_POST['select_payment'] != 0) {
+    if (isset($_POST['select_payment']) && $_POST['select_payment'] != 0) { // Pay with card credit
         $num_card = $_POST['select_payment'];
         $sql = "SELECT bank_card.cash as cash FROM `bank_user` INNER JOIN `bank_card` ON bank_card.num = bank_user.num WHERE bank_user.num = '$num_card'";
         $result = mysqli_query($conn, $sql);
@@ -73,11 +74,11 @@ if (isset($_GET['order_product_list_id']) && isset($_GET['method']) && $_GET['me
             mysqli_query($conn, $sql);
         }
 
-        $query_list = "('$order_id','$product_ids[0]','$amounts[0]','wait')";
+        $query_list = "('$order_id','$product_ids[0]','$amounts[0]','$price[0]','wait')";
         for ($i = 1; $i < COUNT($product_ids); $i++) {
-            $query_list .= ",('$order_id','$product_ids[$i]','$amounts[$i]','wait')";
+            $query_list .= ",('$order_id','$product_ids[$i]','$amounts[$i]','$price[$i]','wait')";
         }
-        $sql = "INSERT INTO `order_product_list`(`order_id`, `product_id`, `amount`, `status`) VALUES $query_list";
+        $sql = "INSERT INTO `order_product_list`(`order_id`, `product_id`, `amount`, `price`, `status`) VALUES $query_list";
         mysqli_query($conn, $sql);
 
         $sql = "DELETE FROM `cart` WHERE id in ('$cart_ids')";

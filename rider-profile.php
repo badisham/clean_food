@@ -4,17 +4,21 @@ require 'condb.php';
 $purchase_success = false;
 require './service/order.php';
 
-if ($_SESSION['type'] == 3 && isset($_SESSION['id'])) {
-    $rider_id = $_SESSION['rider_id'];
-    if (isset($_GET['method']) && isset($_GET['order_product_list_id'])) {
-        $order_product_list_id = $_GET['order_product_list_id'];
-        $sql = "UPDATE `order_product_list` SET status = '" . $_GET['method'] . "' WHERE id = '$order_product_list_id'";
-        mysqli_query($conn, $sql);
-    }
+if (!isset($_SESSION['id']) || $_SESSION['type'] != 3) {
+    header("Refresh:0; login.php");
+    return;
+}
 
-    $orders_working = [];
-    $orders_history = [];
-    $sql = "SELECT *
+$rider_id = $_SESSION['rider_id'];
+if (isset($_GET['method']) && isset($_GET['order_product_list_id'])) {
+    $order_product_list_id = $_GET['order_product_list_id'];
+    $sql = "UPDATE `order_product_list` SET status = '" . $_GET['method'] . "' WHERE id = '$order_product_list_id'";
+    mysqli_query($conn, $sql);
+}
+
+$orders_working = [];
+$orders_history = [];
+$sql = "SELECT *
     ,order_p.id as order_product_list_id
     , order_product.created_at as order_created_at
     , payment.id as payment_id 
@@ -22,6 +26,7 @@ if ($_SESSION['type'] == 3 && isset($_SESSION['id'])) {
     , product.img as product_img
     , restaurant.name as restaurant_name
     , restaurant.img as restaurant_img
+    , order_p.price as order_price
     , (SELECT address.address FROM address WHERE id = restaurant.address_id) as restaurant_address
     , (SELECT address.district FROM address WHERE id = restaurant.address_id) as restaurant_district
     , (SELECT address.amphure FROM address WHERE id = restaurant.address_id) as restaurant_amphure
@@ -37,70 +42,67 @@ if ($_SESSION['type'] == 3 && isset($_SESSION['id'])) {
     INNER JOIN restaurant ON restaurant.id = product.restaurant_id
     LEFT JOIN payment ON payment.order_id = order_product.id 
     WHERE order_p.status in ('rider_recieve','success') AND order_p.rider_id = '$rider_id' ORDER BY order_product.created_at DESC";
-    // echo $sql;
+// echo $sql;
 
-    $result = mysqli_query($conn, $sql);
-    if ($result) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $order = new Order();
-            $order->id = $row['order_id'];
-            $order->created_at = $row['order_created_at'];
-            $order->order_product_list_id = $row['order_product_list_id'];
-            $order->status = $row['status'];
-            $order->express_datetime = $row['express_datetime'];
-            $order->payment_status = isset($row['payment_id']);
+$result = mysqli_query($conn, $sql);
+if ($result) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $order = new Order();
+        $order->id = $row['order_id'];
+        $order->created_at = $row['order_created_at'];
+        $order->order_product_list_id = $row['order_product_list_id'];
+        $order->status = $row['status'];
+        $order->express_datetime = $row['express_datetime'];
+        $order->payment_status = isset($row['payment_id']);
 
-            $product = new Product();
-            $product->id = $row['product_id'];
-            $product->name = $row['product_name'];
-            $product->genre = $row['genre'];
-            $product->img = $row['product_img'];
-            $product->day = $row['day'];
-            $product->price = $row['price'];
-            $product->amount = $row['amount'];
-            $product->price_total = $row['price'] * $row['amount'];
-            $order->product = $product;
+        $product = new Product();
+        $product->id = $row['product_id'];
+        $product->name = $row['product_name'];
+        $product->genre = $row['genre'];
+        $product->img = $row['product_img'];
+        $product->day = $row['day'];
+        $product->price = $row['order_price'];
+        $product->amount = $row['amount'];
+        $product->price_total = $row['order_price'] * $row['amount'];
+        $order->product = $product;
 
-            $user = new User();
-            $user->id = $row['user_id'];
-            $user->first_name = $row['first_name'];
-            $user->last_name = $row['last_name'];
-            $user->tel = $row['tel'];
-            $order->user = $user;
+        $user = new User();
+        $user->id = $row['user_id'];
+        $user->first_name = $row['first_name'];
+        $user->last_name = $row['last_name'];
+        $user->tel = $row['tel'];
+        $order->user = $user;
 
-            $restaurant = new Restaurant();
-            $restaurant->name = $row['restaurant_name'];
-            $restaurant->img = $row['restaurant_img'];
-            $restaurant->address = new Address();
-            $restaurant->address->address = $row['restaurant_address'];
-            $restaurant->address->amphure = $row['restaurant_amphure'];
-            $restaurant->address->district = $row['restaurant_district'];
-            $restaurant->address->zip_code = $row['restaurant_zip_code'];
-            $order->restaurant = $restaurant;
+        $restaurant = new Restaurant();
+        $restaurant->name = $row['restaurant_name'];
+        $restaurant->img = $row['restaurant_img'];
+        $restaurant->address = new Address();
+        $restaurant->address->address = $row['restaurant_address'];
+        $restaurant->address->amphure = $row['restaurant_amphure'];
+        $restaurant->address->district = $row['restaurant_district'];
+        $restaurant->address->zip_code = $row['restaurant_zip_code'];
+        $order->restaurant = $restaurant;
 
-            $address = new Address();
-            $address->address = $row['user_address'];
-            $address->amphure = $row['user_amphure'];
-            $address->district = $row['user_district'];
-            $address->zip_code = $row['user_zip_code'];
-            $order->user_address = $address;
+        $address = new Address();
+        $address->address = $row['user_address'];
+        $address->amphure = $row['user_amphure'];
+        $address->district = $row['user_district'];
+        $address->zip_code = $row['user_zip_code'];
+        $order->user_address = $address;
 
-            if ($order->status == 'rider_recieve') {
-                array_push($orders_working, $order);
-            } else if ($order->status == 'success') {
-                array_push($orders_history, $order);
-            }
+        if ($order->status == 'rider_recieve') {
+            array_push($orders_working, $order);
+        } else if ($order->status == 'success') {
+            array_push($orders_history, $order);
         }
     }
-
-    if (isset($_POST['product_name'])) {
-        $is_upsert = true;
-        $upsert_success = CreateProduct($conn);
-    }
-} else {
-    header("Refresh:0; login.php");
-    return;
 }
+
+if (isset($_POST['product_name'])) {
+    $is_upsert = true;
+    $upsert_success = CreateProduct($conn);
+}
+
 ?>
 
 <!DOCTYPE html>

@@ -1,6 +1,11 @@
 <?php
 require 'condb.php';
 
+if (!isset($_SESSION['id']) || $_SESSION['type'] != 3) {
+    header("Refresh:0; login.php");
+    return;
+}
+
 $is_upsert = false;
 $upsert_success = false;
 $restaurant_id = 0;
@@ -9,29 +14,28 @@ $district_id = isset($_GET['district_id']) ? $_GET['district_id'] : "";
 $amphure_name = "";
 $district_name = "";
 
-if ($_SESSION['type'] == 3 && isset($_SESSION['id'])) {
 
-    if (isset($_GET['method']) && isset($_GET['order_product_list_id'])) {
-        $order_product_list_id = $_GET['order_product_list_id'];
-        $sql = "UPDATE `order_product_list` SET status = '" . $_GET['method'] . "' WHERE id = '$order_product_list_id'";
-        mysqli_query($conn, $sql);
-    }
+if (isset($_GET['method']) && isset($_GET['order_product_list_id'])) {
+    $order_product_list_id = $_GET['order_product_list_id'];
+    $sql = "UPDATE `order_product_list` SET status = '" . $_GET['method'] . "' WHERE id = '$order_product_list_id'";
+    mysqli_query($conn, $sql);
+}
 
-    $query_address = "";
-    if ($amphure_id != "" && $district_id != "") {
-        $sql = "SELECT amphures.name_th as amphure_name, districts.name_th as district_name FROM amphures INNER JOIN districts ON districts.amphure_id = amphures.id WHERE districts.id = '$district_id'";
-        $result = mysqli_query($conn, $sql);
-        $row = mysqli_fetch_assoc($result);
-        $amphure_name = $row['amphure_name'];
-        $district_name = $row['district_name'];
-        $amphure_name = str_replace("'", "", $amphure_name);
-        $district_name = str_replace("'", "", $district_name);
-        $query_address = "AND address.amphure = '$amphure_name' AND address.district = '$district_name'";
-    }
+$query_address = "";
+if ($amphure_id != "" && $district_id != "") {
+    $sql = "SELECT amphures.name_th as amphure_name, districts.name_th as district_name FROM amphures INNER JOIN districts ON districts.amphure_id = amphures.id WHERE districts.id = '$district_id'";
+    $result = mysqli_query($conn, $sql);
+    $row = mysqli_fetch_assoc($result);
+    $amphure_name = $row['amphure_name'];
+    $district_name = $row['district_name'];
+    $amphure_name = str_replace("'", "", $amphure_name);
+    $district_name = str_replace("'", "", $district_name);
+    $query_address = "AND address.amphure = '$amphure_name' AND address.district = '$district_name'";
+}
 
 
-    $orders = [];
-    $sql = "SELECT *,order_p.id as order_product_list_id, order_product.created_at as order_created_at FROM `order_product_list` as order_p
+$orders = [];
+$sql = "SELECT *,order_p.id as order_product_list_id, order_product.created_at as order_created_at,order_p.price as order_price  FROM `order_product_list` as order_p
     INNER JOIN order_product ON order_product.id = order_p.order_id
     INNER JOIN user ON order_product.user_id = user.id
     INNER JOIN address ON address.id = order_product.address_id
@@ -39,50 +43,47 @@ if ($_SESSION['type'] == 3 && isset($_SESSION['id'])) {
     WHERE order_p.status = 'call_rider'
     $query_address ORDER BY order_p.id DESC";
 
-    $result = mysqli_query($conn, $sql);
-    if ($result) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $order = new Order();
-            $order->id = $row['order_id'];
-            $order->created_at = $row['order_created_at'];
-            $order->order_product_list_id = $row['order_product_list_id'];
-            $order->status = $row['status'];
+$result = mysqli_query($conn, $sql);
+if ($result) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $order = new Order();
+        $order->id = $row['order_id'];
+        $order->created_at = $row['order_created_at'];
+        $order->order_product_list_id = $row['order_product_list_id'];
+        $order->status = $row['status'];
 
-            $product = new Product();
-            $product->id = $row['product_id'];
-            $product->name = $row['name'];
-            $product->genre = $row['genre'];
-            $product->img = $row['img'];
-            $product->day = $row['day'];
-            $product->amount = $row['amount'];
-            $order->product = $product;
+        $product = new Product();
+        $product->id = $row['product_id'];
+        $product->name = $row['name'];
+        $product->genre = $row['genre'];
+        $product->img = $row['img'];
+        $product->day = $row['day'];
+        $product->amount = $row['amount'];
+        $order->product = $product;
 
-            $user = new User();
-            $user->id = $row['user_id'];
-            $user->first_name = $row['first_name'];
-            $user->last_name = $row['last_name'];
-            $user->tel = $row['tel'];
-            $order->user = $user;
+        $user = new User();
+        $user->id = $row['user_id'];
+        $user->first_name = $row['first_name'];
+        $user->last_name = $row['last_name'];
+        $user->tel = $row['tel'];
+        $order->user = $user;
 
-            $address = new Address();
-            $address->address = $row['address'];
-            $address->amphure = $row['amphure'];
-            $address->district = $row['district'];
-            $address->zip_code = $row['zip_code'];
-            $order->user_address = $address;
+        $address = new Address();
+        $address->address = $row['address'];
+        $address->amphure = $row['amphure'];
+        $address->district = $row['district'];
+        $address->zip_code = $row['zip_code'];
+        $order->user_address = $address;
 
-            array_push($orders, $order);
-        }
+        array_push($orders, $order);
     }
-
-    if (isset($_POST['product_name'])) {
-        $is_upsert = true;
-        $upsert_success = CreateProduct($conn);
-    }
-} else {
-    header("Refresh:0; login.php");
-    return;
 }
+
+if (isset($_POST['product_name'])) {
+    $is_upsert = true;
+    $upsert_success = CreateProduct($conn);
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

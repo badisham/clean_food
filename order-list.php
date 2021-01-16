@@ -8,7 +8,7 @@ if (isset($_SESSION['id'])) {
     $user_id = $_SESSION['id'];
     $total_sum = 0;
     $products = [];
-    $sql = "SELECT *,product.id as product_id FROM order_product_list
+    $sql = "SELECT *,product.id as product_id,order_product_list.price as order_price FROM order_product_list
     INNER JOIN product ON order_product_list.product_id = product.id
     WHERE order_product_list.order_id in 
     (SELECT id as order_id FROM order_product WHERE user_id = '$user_id') ORDER BY order_product_list.id DESC";
@@ -20,7 +20,7 @@ if (isset($_SESSION['id'])) {
             $product->id = $row['product_id'];
             $product->img = $row['img'];
             $product->description = $row['description'];
-            $product->price = $row['price'];
+            $product->price = $row['order_price'];
             $product->name = $row['name'];
             $product->day = $row['day'];
             $product->amount = $row['amount'];
@@ -33,6 +33,7 @@ if (isset($_SESSION['id'])) {
     }
 } else {
     header("Refresh:0; login.php");
+    return;
 }
 ?>
 
@@ -122,6 +123,9 @@ require_once 'components/head.php';
                             </div>
                         </div>
                     <?php
+                    }
+                    if (COUNT($products) <= 0) {
+                        echo '<h1 style="text-align: center;font-size: 40px;padding: 30px 0;color: #ccc;">ไม่มีรายการสั่งซื้อ</h1>';
                     }
                     ?>
                 </div>

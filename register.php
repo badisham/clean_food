@@ -4,13 +4,13 @@ require 'condb.php';
 <!DOCTYPE html>
 <html lang="en">
 <?php
-require_once 'components/head.php';
+require_once './components/head.php';
 $is_regis = false;
-$regis_success = false;
+$regis_msg = "";
 if (isset($_POST['username'])) {
     require 'service/register.php';
     $is_regis = true;
-    $regis_success = Register($conn);
+    $regis_msg = Register($conn);
 }
 ?>
 <style>
@@ -29,7 +29,7 @@ if (isset($_POST['username'])) {
         <div class="container">
             <div id="login" class="form-wrap">
 
-                <form method="POST" action="register.php">
+                <form method="POST" action="register.php" autocomplete="off">
                     <div class="row mt-4 shadow-lg pt-4 pb-4">
 
                         <div class="col-12 text-center">
@@ -40,11 +40,13 @@ if (isset($_POST['username'])) {
                             <div id="loginwithemail">
                                 <div class="form-group mt-4">
                                     <label for="inputFullName">ชื่อผู้ใช้งาน</label>
-                                    <input required type="text" class="form-control bg-light" name="username" value="" placeholder="ชื่อผู้ใช้งาน">
+                                    <input onblur="CheckUsername(this.value)" required type="text" class="form-control bg-light" name="username" value="" placeholder="ชื่อผู้ใช้งาน" minlength="8">
+                                    <p style="color: red !important;display: none;" id="username_false">มีชื่อผู้ใช้นี้แล้วในระบบ</p>
+                                    <p style="color: green !important;display: none;" id="username_true">สามารถใช้ชื่อผู้ใช้นี้ได้</p>
                                 </div>
                                 <div class="form-group">
                                     <label for="inputPassword">รหัสผ่าน</label>
-                                    <input required type="password" class="form-control bg-light" name="password" placeholder="••••••••">
+                                    <input required type="password" class="form-control bg-light" name="password" placeholder="รหัสผ่าน" minlength="8">
                                 </div>
                                 <!-- <div class="form-group">
                                     <label for="inputCfPassword">ยืนยันรหัสผ่าน</label>
@@ -62,7 +64,7 @@ if (isset($_POST['username'])) {
 
                                 <div class="form-group mt-4">
                                     <label for="inputFullName">เบอร์โทรศัพท์</label>
-                                    <input required type="number" class="form-control bg-light" name="telephone" value="" placeholder="เบอร์โทรศัพท์">
+                                    <input required pattern="[0-9]+" class="form-control bg-light" name="telephone" value="" placeholder="เบอร์โทรศัพท์">
                                 </div>
 
                                 <div class="form-group mt-4">
@@ -81,7 +83,6 @@ if (isset($_POST['username'])) {
                             </div>
                         </div>
                     </div>
-
                 </form>
                 <div class="row text-center mt-4 mb-65">
                     <div class="col-12">
@@ -92,19 +93,20 @@ if (isset($_POST['username'])) {
             </div>
         </div>
     </div>
-
 </body>
 
 </html>
-
 <script>
     setTimeout(() => {
         if (<?= json_encode($is_regis) ?>) {
-            if (<?= json_encode($regis_success) ?>) {
+            if (<?= json_encode($regis_msg) ?> == 'success') {
                 SweetAlertOk('สมัครสมาชิกเรียบร้อย', 'success', 'index.php');
+            } else if (<?= json_encode($regis_msg) ?> == 'duplicate') {
+                SweetAlert('มีชื่อนี้ในระบบแล้ว', 'warning');
             } else {
                 SweetAlert('ผิดพลาด', 'warning');
             }
         }
+
     }, 100);
 </script>

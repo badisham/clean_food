@@ -1,8 +1,19 @@
 <?php
-require 'service/upload-image.php';
+
+if (isset($_GET['username']) && isset($_GET['check_user'])) {
+    require '../condb.php';
+    $sql = "SELECT id FROM user WHERE username = '" . $_GET['username'] . "'";
+    $result = mysqli_query($conn, $sql);
+    if (mysqli_num_rows($result) > 0) {
+        echo 'false';
+    } else {
+        echo 'true';
+    }
+}
 
 function Register($conn)
 {
+    require 'service/upload-image.php';
     $is_success = false;
     if (isset($_POST['username']) && isset($_POST['password'])) {
 
@@ -13,6 +24,12 @@ function Register($conn)
         $last_name = $_POST['last_name'];
         $email = $_POST['email'];
         $tel = $_POST['tel'];
+
+        $sql = "SELECT id FROM user WHERE username = '$username'";
+        $result = mysqli_query($conn, $sql);
+        if (mysqli_num_rows($result) > 0) {
+            return 'duplicate';
+        }
 
         $user_id = 0;
         $sql = "INSERT INTO `user`(`username`, `password`, `first_name`, `last_name`, `email`, `tel`, `type`) VALUES ('$username','$password','$first_name','$last_name','$email','$tel','$type')";
@@ -71,5 +88,5 @@ function Register($conn)
             }
         }
     }
-    return $is_success;
+    return 'success';
 }

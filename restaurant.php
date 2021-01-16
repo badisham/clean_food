@@ -121,7 +121,7 @@ require_once 'components/head.php';
         }
         $products_clean = [];
         $products_sweet = [];
-        $sql = "SELECT * FROM product WHERE restaurant_id = '" . $_GET['restaurant_id'] . "'";
+        $sql = "SELECT * FROM product WHERE is_enable = '1' AND day != '' AND restaurant_id = '" . $_GET['restaurant_id'] . "'";
         $result = mysqli_query($conn, $sql);
         if ($result) {
             if (mysqli_num_rows($result)) {

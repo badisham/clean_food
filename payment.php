@@ -1,77 +1,80 @@
 <?php
 require 'condb.php';
 
+
+if (!isset($_SESSION['id'])) {
+    header("Refresh:0; login.php");
+    return;
+}
+
 $purchase_success = false;
 $cash_not_enough = false;
 require './service/order.php';
 
-if (isset($_SESSION['id'])) {
-    $user_id = $_SESSION['id'];
-    $total_sum = 0;
-    $products = [];
-    $cart_id = 0;
-    $sql = "SELECT *,cart.id as cart_id,product.id as product_id FROM cart 
+$user_id = $_SESSION['id'];
+$total_sum = 0;
+$products = [];
+$cart_id = 0;
+$sql = "SELECT *,cart.id as cart_id,product.id as product_id FROM cart 
     LEFT JOIN product ON product.id = cart.product_id
     WHERE cart.user_id = '$user_id' ORDER BY cart.id DESC";
 
-    $result = mysqli_query($conn, $sql);
-    if ($result) {
+$result = mysqli_query($conn, $sql);
+if ($result) {
 
-        while ($row = mysqli_fetch_assoc($result)) {
-            $product = new Product();
-            $product->id = $row['product_id'];
-            $product->img = $row['img'];
-            $product->description = $row['description'];
-            $product->price = $row['price'];
-            $product->name = $row['name'];
-            $product->day = $row['day'];
-            $product->amount = $row['amount'];
-            $product->price_total = $row['amount'] * $product->price;
-            $product->cart_id = $row['cart_id'];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $product = new Product();
+        $product->id = $row['product_id'];
+        $product->img = $row['img'];
+        $product->description = $row['description'];
+        $product->price = $row['price'];
+        $product->name = $row['name'];
+        $product->day = $row['day'];
+        $product->amount = $row['amount'];
+        $product->price_total = $row['amount'] * $product->price;
+        $product->cart_id = $row['cart_id'];
 
-            $total_sum += $product->price_total;
-            array_push($products, $product);
-        }
+        $total_sum += $product->price_total;
+        array_push($products, $product);
     }
+}
 
-    $bank_cards = [];
-    $sql = "SELECT * FROM bank_user
+$bank_cards = [];
+$sql = "SELECT * FROM bank_user
 INNER JOIN bank_card ON bank_user.num = bank_card.num
  WHERE bank_user.user_id = '$user_id'";
-    $result = mysqli_query($conn, $sql);
-    if ($result) {
-        if (mysqli_num_rows($result) > 0) {
-            while ($row = mysqli_fetch_assoc($result)) {
-                $bank_card = new BankCard();
-                $bank_card->id = $row['id'];
-                $bank_card->name = $row['name'];
-                $bank_card->num = $row['num'];
-                $bank_card->type = $row['type'];
-                $bank_card->cash = $row['cash'];
-                $bank_cards[$bank_card->id] = $bank_card;
-            }
+$result = mysqli_query($conn, $sql);
+if ($result) {
+    if (mysqli_num_rows($result) > 0) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $bank_card = new BankCard();
+            $bank_card->id = $row['id'];
+            $bank_card->name = $row['name'];
+            $bank_card->num = $row['num'];
+            $bank_card->type = $row['type'];
+            $bank_card->cash = $row['cash'];
+            $bank_cards[$bank_card->id] = $bank_card;
         }
     }
-
-    $address = [];
-    $sql = "SELECT * FROM address WHERE user_id = '$user_id'";
-    $result = mysqli_query($conn, $sql);
-    if ($result) {
-        if (mysqli_num_rows($result) > 0) {
-            while ($row = mysqli_fetch_assoc($result)) {
-                $add = new Address();
-                $add->id = $row['id'];
-                $add->address = $row['address'];
-                $add->amphure = $row['amphure'];
-                $add->district = $row['district'];
-                $add->zip_code = $row['zip_code'];
-                $address[$add->id] = $add;
-            }
-        }
-    }
-} else {
-    header("Refresh:0; login.php");
 }
+
+$address = [];
+$sql = "SELECT * FROM address WHERE user_id = '$user_id'";
+$result = mysqli_query($conn, $sql);
+if ($result) {
+    if (mysqli_num_rows($result) > 0) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $add = new Address();
+            $add->id = $row['id'];
+            $add->address = $row['address'];
+            $add->amphure = $row['amphure'];
+            $add->district = $row['district'];
+            $add->zip_code = $row['zip_code'];
+            $address[$add->id] = $add;
+        }
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -132,6 +135,7 @@ require_once 'components/head.php';
                             <input type="hidden" name="cart_id[]" value="<?= $product->cart_id ?>">
                             <input type="hidden" name="product_id[]" value="<?= $product->id ?>">
                             <input type="hidden" name="amount[]" value="<?= $product->amount ?>">
+                            <input type="hidden" name="price[]" value="<?= $product->price ?>">
                         <?php
                         }
                         ?>
@@ -152,7 +156,7 @@ require_once 'components/head.php';
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="col-2">
-                                                    <input class="form-check-input" type="radio" name="select_address" id="address_<?= $add->id ?>" value="<?= $add->id ?>" required>
+                                                    <input class="form-check-input" type="radio" name="select_address" id="address_<?= $add->id ?>" value="<?= $add->id ?>" checked>
                                                 </div>
                                                 <div class="col-10">
                                                     <?= $add->address ?>
@@ -225,7 +229,7 @@ require_once 'components/head.php';
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-1">
-                                            <input class="form-check-input" type="radio" name="select_payment" id="bank_cash" value="cash">
+                                            <input class="form-check-input" type="radio" name="select_payment" id="bank_cash" value="cash" checked>
                                         </div>
                                         <div class="col-3">
 
@@ -263,6 +267,10 @@ require_once 'components/head.php';
 </html>
 <script>
     $('#submit_btn').on('click', () => {
+        if (<?= json_encode(COUNT($address)) ?> <= 0) {
+            SweetAlert('กรุณาเลือกที่จัดส่ง', 'warning');
+            return;
+        }
         $('#submit').click();
     })
 

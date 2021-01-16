@@ -1,6 +1,10 @@
 <?php
 require 'condb.php';
 
+if (!isset($_SESSION['restaurant_id']) || !isset($_SESSION['id'])) {
+  header("Refresh:0; login.php");
+  return;
+}
 $is_upsert = false;
 $upsert_success = false;
 $restaurant_id = 0;
@@ -8,17 +12,14 @@ $select_day = isset($_GET['select_day']) ? $_GET['select_day'] : "";
 $select_genre = isset($_GET['select_genre']) ? $_GET['select_genre'] : "";
 
 
-if ($_SESSION['restaurant_id'] && isset($_SESSION['id'])) {
-  $restaurant_id = $_SESSION['restaurant_id'];
-  require 'service/product.php';
+$restaurant_id = $_SESSION['restaurant_id'];
+require 'service/product.php';
 
-  if (isset($_POST['product_name'])) {
-    $is_upsert = true;
-    $upsert_success = CreateProduct($conn);
-  }
-} else {
-  header("Refresh:0; login.php");
+if (isset($_POST['product_name'])) {
+  $is_upsert = true;
+  $upsert_success = CreateProduct($conn);
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -85,7 +86,7 @@ require_once 'components/head.php';
             $products = [];
             $query_type = $select_genre != "" ? "AND genre = '$select_genre'" : "";
             $query_day = $select_day != "" ? "AND day LIKE '%$select_day%'" : "";
-            $sql = "SELECT * FROM `product` WHERE restaurant_id = '$restaurant_id' $query_type $query_day ORDER BY id DESC";
+            $sql = "SELECT * FROM `product` WHERE restaurant_id = '$restaurant_id' $query_type $query_day AND is_enable = '1' ORDER BY id DESC";
             $result = mysqli_query($conn, $sql);
 
             if ($result) {
