@@ -1,4 +1,8 @@
+<!DOCTYPE html>
+<html lang="en">
 <?php
+require_once 'components/head.php';
+
 require 'condb.php';
 
 
@@ -7,8 +11,6 @@ if (!isset($_SESSION['id'])) {
     return;
 }
 
-$purchase_success = false;
-$cash_not_enough = false;
 require './service/order.php';
 
 $user_id = $_SESSION['id'];
@@ -75,12 +77,6 @@ if ($result) {
     }
 }
 
-?>
-
-<!DOCTYPE html>
-<html lang="en">
-<?php
-require_once 'components/head.php';
 ?>
 <style>
     .card img {
@@ -202,14 +198,7 @@ require_once 'components/head.php';
                                                 <div class="col-1">
                                                     <input class="form-check-input" type="radio" name="select_payment" id="bank_<?= $bank->id ?>" value="<?= $bank->num ?>" required>
                                                 </div>
-                                                <div class="col-3">
-                                                    <?php
-                                                    if ($bank->type == 1) {
-                                                        echo "Debit";
-                                                    } else {
-                                                        echo "VISA";
-                                                    } ?>
-                                                </div>
+                                                <div class="col-3"><?= $bank->type ?></div>
                                                 <div class="col-8">
                                                     <?= $bank->name ?>
                                                 </div>
@@ -273,16 +262,4 @@ require_once 'components/head.php';
         }
         $('#submit').click();
     })
-
-    setTimeout(() => {
-        if (<?= json_encode(isset($_POST['total_price'])) ?>) {
-            if (<?= json_encode($purchase_success) ?>) {
-                SweetAlertOk('สั่งซื้อเรียบร้อย', 'success', 'order-list.php');
-            } else if (<?= json_encode($cash_not_enough) ?>) {
-                SweetAlert('จำนวนเงินไม่พอชำระ', 'warning');
-            } else {
-                SweetAlert('ไม่สามารถชำระได้ในขณะนี้', 'warning');
-            }
-        }
-    }, 100);
 </script>

@@ -39,7 +39,7 @@ if (isset($_SESSION['type']) && $_SESSION['type'] == 2) {
                             if (isset($_SESSION['id'])) {
                                 if ($_SESSION['type'] == 4) {
                             ?>
-                                    <a href="admin.php">
+                                    <a href="backend/">
                                         <li class="subhead_menu">BackOffice</li>
                                     </a>
                                 <?php
@@ -52,6 +52,9 @@ if (isset($_SESSION['type']) && $_SESSION['type'] == 2) {
                                         <li class="subhead_menu">รายการสั่งซื้อเข้ามา
                                             <?php if ($order_amount > 0) { ?> <span class="badge bg-danger badge-alert"><?= $order_amount ?></span><?php } ?>
                                         </li>
+                                    </a>
+                                    <a href="restaurant-report.php">
+                                        <li class="subhead_menu">ข้อมูลการขาย </li>
                                     </a>
 
                                 <?php

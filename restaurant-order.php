@@ -7,6 +7,7 @@ if (!isset($_SESSION['restaurant_id']) || !isset($_SESSION['id'])) {
     return;
 }
 
+
 $is_upsert = false;
 $upsert_success = false;
 $restaurant_id = 0;
@@ -32,7 +33,7 @@ $sql = "SELECT *,order_p.id as order_product_list_id, order_product.created_at a
     INNER JOIN order_product ON order_product.id = order_p.order_id
     INNER JOIN user ON order_product.user_id = user.id
     INNER JOIN product ON product.id = order_p.product_id
-    WHERE order_p.status != 'success' AND order_p.product_id in (SELECT id FROM `product` WHERE `restaurant_id` = '$restaurant_id') 
+    WHERE order_p.status not in ('success','sent_success','sent_success_cash')  AND order_p.product_id in (SELECT id FROM `product` WHERE `restaurant_id` = '$restaurant_id') 
     $query_type $query_day $query_status ORDER BY order_p.id DESC";
 
 $result = mysqli_query($conn, $sql);
@@ -124,6 +125,7 @@ require_once 'components/head.php';
                         <option value="">-- ทุกสถานะ --</option>
                         <option value="confirm" <?= $select_status == "confirm" ? "selected" : "" ?>>รับออร์เดอร์แล้ว</option>
                         <option value="wait" <?= $select_status == "wait" ? "selected" : "" ?>>รอยืนยัน</option>
+                        <option value="call_rider" <?= $select_status == "call_rider" ? "selected" : "" ?>>เรียกไรเดอร์</option>
                         <option value="cancel" <?= $select_status == "cancel" ? "selected" : "" ?>>ยกเลิก</option>
                     </select>
                 </div>
@@ -151,7 +153,7 @@ require_once 'components/head.php';
 
                         ?>
                                 <tr>
-                                    <td width="50" scope="row"><?= $order->id; ?></td>
+                                    <td width="50" scope="row"><?= $order->order_product_list_id; ?></td>
                                     <td width="50"><img src="images/product/<?= $order->product->img ?>" alt=""></td>
                                     <td width="400">
                                         <h4><?= $order->product->name ?></h4>

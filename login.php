@@ -35,7 +35,6 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
         }
     }
 }
-https: //www.google.co.th/maps/place/
 ?>
 <script>
     setTimeout(() => {

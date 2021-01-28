@@ -1,10 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
 <?php
+require_once 'components/head.php';
 require 'condb.php';
 
 if (!isset($_SESSION['id']) || $_SESSION['type'] != 3) {
     header("Refresh:0; login.php");
     return;
 }
+$rider_id = $_SESSION['rider_id'];
+
+$sql = "SELECT (SUM(price) - SUM(shipping)) as overdue FROM order_product_list WHERE rider_id = '$rider_id' AND status = 'sent_success_cash' AND express_datetime < now() - INTERVAL 1 DAY";
+$result = mysqli_query($conn, $sql);
+$overdue = mysqli_fetch_assoc($result)['overdue'];
+if ($overdue > 0) {
+    echo "<script>
+            setTimeout(() => {
+                SweetAlertOk('คุณมียอดค้างชำระ', 'warning', 'profile.php#overdue');
+            }, 100);
+        </script>";
+    header("Refresh:3; profile.php#overdue");
+    return;
+} // มียอดค้าง ต้องไปจ่ายก่อน
 
 $is_upsert = false;
 $upsert_success = false;
@@ -14,8 +31,7 @@ $district_id = isset($_GET['district_id']) ? $_GET['district_id'] : "";
 $amphure_name = "";
 $district_name = "";
 
-
-if (isset($_GET['method']) && isset($_GET['order_product_list_id'])) {
+if (isset($_GET['method']) && isset($_GET['order_product_list_id'])) { // Rider active method
     $order_product_list_id = $_GET['order_product_list_id'];
     $sql = "UPDATE `order_product_list` SET status = '" . $_GET['method'] . "' WHERE id = '$order_product_list_id'";
     mysqli_query($conn, $sql);
@@ -85,11 +101,6 @@ if (isset($_POST['product_name'])) {
 }
 
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<?php
-require_once 'components/head.php';
-?>
 
 <body>
 
@@ -115,6 +126,12 @@ require_once 'components/head.php';
         .select-filter div {
             width: auto;
             margin-right: 20px;
+        }
+
+        .status_free {
+            text-align: center;
+            color: #ccc;
+            margin: 20px 0;
         }
     </style>
     <div class="container layout-1">
@@ -142,37 +159,39 @@ require_once 'components/head.php';
                 <table class="table table-striped product_table mt-2">
                     <tbody>
                         <?php
-                        foreach ($orders as $order) {
+                        if (COUNT($orders) > 0) {
+                            foreach ($orders as $order) {
 
                         ?>
-                            <tr>
-                                <td width="50" scope="row"><?= $order->id; ?></td>
-                                <td width="50"><img src="images/product/<?= $order->product->img ?>" alt=""></td>
-                                <td width="400">
-                                    <h4><?= $order->product->name ?></h4>
-                                    <p>จำนวน : <?= $order->product->amount ?></p>
-                                    <p>
-                                        <?= $order->product->genre == "food" ? "อาหาร" : "" ?>
-                                        <?= $order->product->genre == "sweet" ? "ของหวาน" : "" ?></p>
-                                </td>
-                                <td width="500">
-                                    <h5><?= $order->user->first_name ?> <?= $order->user->last_name ?></h5>
-                                    <p>โทร : <?= $order->user->tel ?></p>
-                                    <p><?= $order->user_address->address ?>
-                                        <?= $order->user_address->district ?>
-                                        <?= $order->user_address->amphure ?>
-                                        <?= $order->user_address->zip_code ?></p>
-                                    <p><a href="https://www.google.com/maps/search/?api=1&query=<?= $order->user_address->address ?>+<?= $order->user_address->district ?>+<?= $order->user_address->amphure ?>" class="btn btn-primary" target="_blank">ดู Map</a></p>
-                                </td>
-                                <td width="300" class="text-right">
-                                    <a href="./service/order.php?method=recieve_order&order_product_list_id=<?= $order->order_product_list_id ?>" style="margin-right: 20px;" class="btn btn-success r-2">รับส่งออร์เดอร์</a>
+                                <tr>
+                                    <td width="50" scope="row"><?= $order->id; ?></td>
+                                    <td width="50"><img src="images/product/<?= $order->product->img ?>" alt=""></td>
+                                    <td width="400">
+                                        <h4><?= $order->product->name ?></h4>
+                                        <p>จำนวน : <?= $order->product->amount ?></p>
+                                        <p>
+                                            <?= $order->product->genre == "food" ? "อาหาร" : "" ?>
+                                            <?= $order->product->genre == "sweet" ? "ของหวาน" : "" ?></p>
+                                    </td>
+                                    <td width="500">
+                                        <h5><?= $order->user->first_name ?> <?= $order->user->last_name ?></h5>
+                                        <p>โทร : <?= $order->user->tel ?></p>
+                                        <p><?= $order->user_address->address ?>
+                                            <?= $order->user_address->district ?>
+                                            <?= $order->user_address->amphure ?>
+                                            <?= $order->user_address->zip_code ?></p>
+                                        <p><a href="https://www.google.com/maps/search/?api=1&query=<?= $order->user_address->address ?>+<?= $order->user_address->district ?>+<?= $order->user_address->amphure ?>" class="btn btn-primary" target="_blank">ดู Map</a></p>
+                                    </td>
+                                    <td width="300" class="text-right">
+                                        <a href="./service/order.php?method=recieve_order&order_product_list_id=<?= $order->order_product_list_id ?>" style="margin-right: 20px;" class="btn btn-success r-2">รับส่งออร์เดอร์</a>
 
-                                </td>
-                            </tr>
+                                    </td>
+                                </tr>
                         <?php
+                            }
+                        } else {
+                            echo '<h3 class="status_free">ยังไม่มีรายการ</h3>';
                         }
-
-
                         ?>
 
                     </tbody>

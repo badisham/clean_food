@@ -109,7 +109,7 @@ require_once 'components/head.php';
                                         } else if ($product->status == "rider_recieve" || $product->status == 'call_rider') {
                                             echo '<img src="images/delivery.gif" style="width: 100px;height: 50px" alt="">';
                                             echo "<h4>กำลังจัดส่ง</h4>";
-                                        } else if ($product->status == 'success') {
+                                        } else if ($product->status == 'success' || $product->status == 'sent_success' || $product->status == 'sent_success_cash') {
                                             echo "<h4>จัดส่งเรียบร้อย</h4>";
                                         }
                                         ?>
@@ -117,7 +117,13 @@ require_once 'components/head.php';
                                     <div class="col-3 vertical-mid">
                                         <p>จำนวน : <?= $product->amount ?></p>
                                         <h4><?= $product->price_total ?> บาท</h4>
-                                        <p><a href="" class="cancel-btn">ยกเลิกรายการ</a></p>
+                                        <?php
+                                        if ($product->status == "wait") {
+                                        ?>
+                                            <p><a href="" class="cancel-btn">ยกเลิกรายการ</a></p>
+                                        <?php
+                                        }
+                                        ?>
                                     </div>
                                 </div>
                             </div>

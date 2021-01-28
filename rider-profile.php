@@ -21,7 +21,6 @@ $orders_history = [];
 $sql = "SELECT *
     ,order_p.id as order_product_list_id
     , order_product.created_at as order_created_at
-    , payment.id as payment_id 
     , product.name as product_name
     , product.img as product_img
     , restaurant.name as restaurant_name
@@ -40,8 +39,7 @@ $sql = "SELECT *
     INNER JOIN user ON order_product.user_id = user.id 
     INNER JOIN product ON product.id = order_p.product_id 
     INNER JOIN restaurant ON restaurant.id = product.restaurant_id
-    LEFT JOIN payment ON payment.order_id = order_product.id 
-    WHERE order_p.status in ('rider_recieve','success') AND order_p.rider_id = '$rider_id' ORDER BY order_product.created_at DESC";
+    WHERE order_p.status in ('rider_recieve','success','sent_success','sent_success_cash') AND order_p.rider_id = '$rider_id' ORDER BY order_product.created_at DESC";
 // echo $sql;
 
 $result = mysqli_query($conn, $sql);
@@ -52,8 +50,9 @@ if ($result) {
         $order->created_at = $row['order_created_at'];
         $order->order_product_list_id = $row['order_product_list_id'];
         $order->status = $row['status'];
-        $order->express_datetime = $row['express_datetime'];
-        $order->payment_status = isset($row['payment_id']);
+        $order->express_datetime = ThaiDatetime($row['express_datetime']);
+        $order->payment_chanel = $row['payment_chanel'];
+        $order->shipping = $row['shipping'];
 
         $product = new Product();
         $product->id = $row['product_id'];
@@ -92,7 +91,7 @@ if ($result) {
 
         if ($order->status == 'rider_recieve') {
             array_push($orders_working, $order);
-        } else if ($order->status == 'success') {
+        } else if ($order->status == 'success' || $order->status == 'sent_success' || $order->status == 'sent_success_cash') {
             array_push($orders_history, $order);
         }
     }
@@ -199,10 +198,10 @@ require_once 'components/head.php';
 
                                         </div>
                                         <div class="col-2 vertical-mid">
-                                            <p><a href="service/order.php?method=success&order_product_list_id=<?= $order->order_product_list_id ?>" class="btn btn-success">ส่งเรียบร้อย</a></p>
-                                            <p>ค่าจัดส่ง <?= CalExpress($order->product->price, $order->product->amount) ?></p>
+                                            <p><a href="service/order.php?method=sent_success<?= $order->payment_chanel == 'CASH' ? '_cash' : '' ?>&order_product_list_id=<?= $order->order_product_list_id ?>" class="btn btn-success">ส่งเรียบร้อย</a></p>
+                                            <p>ค่าจัดส่ง <?= $order->shipping ?> บาท</p>
                                             <?php
-                                            if ($order->payment_status) {
+                                            if ($order->payment_chanel != 'CASH') {
                                             ?>
                                                 <h4>จ่ายเรียบร้อยแล้ว</h4>
                                             <?php
@@ -269,8 +268,6 @@ require_once 'components/head.php';
                                             </p>
                                             <p>รายการอาหาร : <?= $order->product->name ?></p>
                                             <p>จำนวน : <?= $order->product->amount ?></p>
-                                            <!-- <p><a href="https://www.google.com/maps/search/?api=1&query=<?= $order->restaurant->address->address ?>+<?= $order->restaurant->address->district ?>+<?= $order->restaurant->address->amphure ?>" class="btn btn-primary" target="_blank">ดู Map</a></p> -->
-
                                         </div>
 
                                         <div class="col-3 vertical-mid text-left">
@@ -280,11 +277,10 @@ require_once 'components/head.php';
                                                 <?= $order->user_address->district ?>
                                                 <?= $order->user_address->amphure ?>
                                                 <?= $order->user_address->zip_code ?></p>
-                                            <!-- <p><a href="https://www.google.com/maps/search/?api=1&query=<?= $order->user_address->address ?>+<?= $order->user_address->district ?>+<?= $order->user_address->amphure ?>" class="btn btn-primary" target="_blank">ดู Map</a></p> -->
 
                                         </div>
                                         <div class="col-2 vertical-mid">
-                                            <h3>ค่าจัดส่ง <?= CalExpress($order->product->price, $order->product->amount) ?></h3>
+                                            <h4>ค่าจัดส่ง <?= $order->shipping ?> บาท</h4>
                                             <p><?= $order->express_datetime ?></p>
                                         </div>
                                     </div>

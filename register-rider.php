@@ -79,11 +79,6 @@ if (isset($_POST['username'])) {
                                     <label for="inputPassword">รหัสผ่าน</label>
                                     <input required type="password" class="form-control bg-light" name="password" placeholder="รหัสผ่าน" minlength="8">
                                 </div>
-                                <!-- <div class="form-group">
-                                    <label for="inputCfPassword">ยืนยันรหัสผ่าน</label>
-                                    <input required type="password" class="form-control bg-light" name="password_2" placeholder="••••••••">
-
-                                </div> -->
                                 <div class="form-group mt-4">
                                     <label for="first_name">ชื่อ</label>
                                     <input required type="text" class="form-control bg-light" id="first_name" name="first_name" placeholder="ชื่อ">
@@ -95,7 +90,7 @@ if (isset($_POST['username'])) {
 
                                 <div class="form-group mt-4">
                                     <label for="inputFullName">เบอร์โทรศัพท์</label>
-                                    <input required type="text" pattern="[0-9]+" class="form-control bg-light" maxlength="20" name="telephone" placeholder="เบอร์โทรศัพท์">
+                                    <input required type="text" pattern="[0-9]+" class="form-control bg-light" maxlength="20" name="tel" placeholder="เบอร์โทรศัพท์">
                                 </div>
 
                                 <div class="form-group mt-4">

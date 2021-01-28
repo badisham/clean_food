@@ -13,16 +13,18 @@ function CloseCon($conn)
 date_default_timezone_set('Asia/Bangkok');
 session_start();
 
+// CONFIG
+$admin_id = 1;
+$admin_num_card = 1345975465842145;
+
 function CheckNewByDate($date)
 {
     return date('d-m-Y', strtotime("now")) < date("d-m-Y", strtotime($date . " +2 days")) ?
         '<div class="product_bubble product_bubble_left product_bubble_green d-flex flex-column align-items-center"><span>new</span></div>' : '';
 }
 
-function GetNextDay($input_day)
+function GetNextDay($input_day, $formatDate = false)
 {
-    // $name_days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
     $days = explode(",", $input_day);
     $index = 0;
     for ($i = 0; $i < 7; $i++) {
@@ -32,9 +34,13 @@ function GetNextDay($input_day)
         }
         $index++;
     }
-    if ($index == 0)
-        return "วันนี้";
-    return date("d/m/Y", strtotime('now + ' . $index . ' days'));;
+    if ($formatDate) {
+        return date("Y/m/d", strtotime('now + ' . $index . ' days'));
+    } else {
+        if ($index == 0)
+            return "วันนี้";
+        return date("d/m/Y", strtotime('now + ' . $index . ' days'));
+    }
 }
 
 function LimitText($text, $limit)
@@ -42,7 +48,7 @@ function LimitText($text, $limit)
     return strlen($text) > $limit ? substr($text, 0, $limit) . '...' : $text;
 }
 
-function CalExpress($price, $amount)
+function CalShipping($price, $amount)
 {
     $max = 100;
     $min = 10;
@@ -53,6 +59,58 @@ function CalExpress($price, $amount)
         $benefit = $max;
     }
     return $benefit;
+}
+
+$dayTH = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+$monthTH = [null, 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+$monthTH_brev = [null, 'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+function ThaiDatetime($datetime, $addDay = 0)
+{   // 19 ธันวาคม 2556 เวลา 10:10:43
+
+    $unix = new DateTime($datetime);
+    $time = $unix->getTimestamp();
+    $time = strtotime('+' . $addDay . ' day', $time);
+
+    global $dayTH, $monthTH;
+    $thai_date_return = date("j", $time);
+    $thai_date_return .= " " . $monthTH[date("n", $time)];
+    $thai_date_return .= " " . (date("Y", $time) + 543);
+    $thai_date_return .= " เวลา " . date("H:i:s", $time);
+    return $thai_date_return;
+}
+function ThaiDate($datetime, $addDay = 0)
+{   // 19 ธันวาคม 2556 เวลา 10:10:43
+    $unix = new DateTime($datetime);
+    $time = $unix->getTimestamp();
+    $time = strtotime('+' . $addDay . ' day', $time);
+    global $dayTH, $monthTH;
+    $thai_date_return = date("j", $time);
+    $thai_date_return .= " " . $monthTH[date("n", $time)];
+    $thai_date_return .= " " . (date("Y", $time) + 543);
+    return $thai_date_return;
+}
+
+function SweetAlert($msg, $icon, $link = '')
+{
+    $func = $link != '' ? "SweetAlertOk('$msg', '$icon', '$link');" : "SweetAlert('$msg', '$icon');";
+    echo "<script>setTimeout(() => { $func }, 100);</script>";
+}
+
+function Transfer($conn, $transfer_user_id, $transfer_num, $recieve_user_id, $recieve_num, $cash, $type, $link = '')
+{
+    $result = mysqli_query($conn, $sql = "SELECT cash FROM bank_card WHERE num = '$transfer_num'");
+    if ($cash > mysqli_fetch_assoc($result)['cash']) {
+        SweetAlert('จำนวนเงินไม่เพียงพอ', 'warning', $link);
+        return false;
+    }
+    mysqli_query($conn, "INSERT INTO `transaction`(`transfer_user_id`, `recieve_user_id`, `cash`, `type`) VALUES ('$transfer_user_id','$recieve_user_id','$cash','$type')");
+    $sql = "UPDATE bank_card SET cash = CASE num
+        WHEN '$transfer_num' THEN cash - $cash
+        WHEN '$recieve_num' THEN cash + $cash
+        END
+        WHERE num IN ('$transfer_num','$recieve_num')";
+    $result = mysqli_query($conn, $sql);
+    return $result ? true : false;
 }
 class User
 {
@@ -76,6 +134,8 @@ class Product
     public $created_at;
     public $day;
 
+    public $restaurant_name;
+    public $owner_name;
     // cart & order
     public $cart_id;
     public $amount;
@@ -93,8 +153,9 @@ class Order
     public $restaurant;
     public $user_address;
     public $created_at;
-    public $payment_status;
+    public $payment_chanel;
     public $express_datetime;
+    public $shipping;
 }
 
 
@@ -107,6 +168,19 @@ class Restaurant
     public $description;
     public $created_at;
     public $address;
+    public $owner;
+    public $disburse_price;
+}
+class Rider
+{
+    public $id;
+    public $rider_card_id;
+    public $card_num_id;
+    public $card_id_img;
+    public $user;
+    public $working_order;
+    public $overdue;
+    public $overdue_since_datetime;
 }
 
 class BankCard
@@ -136,4 +210,25 @@ class Amphures
     public $code;
     public $name_th;
     public $name_en;
+}
+
+class Notificate
+{
+    public $id;
+    public $datetime;
+    public $status;
+    public $description;
+    public $link;
+}
+
+class Transaction
+{
+    public $id;
+    public $transfer_user_id;
+    public $transfer_name;
+    public $recieve_user_id;
+    public $recieve_name;
+    public $cash;
+    public $type;
+    public $created_at;
 }
