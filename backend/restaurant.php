@@ -27,7 +27,7 @@ if ($result) {
         $restaurant->disburse_price = $row['disburse_price'];
 
         $user = new User();
-        $user->id = $row['id'];
+        $user->id = $row['user_id'];
         $user->username = $row['username'];
         $user->first_name = $row['first_name'];
         $user->last_name = $row['last_name'];
@@ -130,7 +130,7 @@ if ($result) {
                                                     <?php
                                                     if ($res->disburse_price > 0) {
                                                     ?>
-                                                        <a href="services/disburse.php?user_id=<?$res->user->id?>&restaurant_id=<?= $res->id ?>&disburse_price=<?= $res->disburse_price ?>" class="btn btn-primary">จ่าย <?= $res->disburse_price ?> บาท</a>
+                                                        <a href="services/disburse.php?user_id=<?= $res->owner->id ?>&restaurant_id=<?= $res->id ?>&disburse_price=<?= $res->disburse_price ?>" class="btn btn-primary">จ่าย <?= $res->disburse_price ?> บาท</a>
                                                     <?php
                                                     }
                                                     ?>

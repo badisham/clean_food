@@ -14,14 +14,14 @@ $sql = "SELECT *,
 (SELECT bank_card.name FROM bank_card 
 INNER JOIN bank_user ON bank_user.num = bank_card.num
 INNER JOIN user ON user.id = bank_user.user_id
-WHERE user.id = transaction.transfer_user_id
+WHERE user.id = transaction.transfer_user_id LIMIT 1
 ) as transfer_name,
 (SELECT bank_card.name FROM bank_card 
 INNER JOIN bank_user ON bank_user.num = bank_card.num
 INNER JOIN user ON user.id = bank_user.user_id
-WHERE user.id = transaction.recieve_user_id
+WHERE user.id = transaction.recieve_user_id LIMIT 1
 ) as recieve_name
- FROM transaction";
+ FROM transaction ORDER BY transaction.id DESC";
 $result = mysqli_query($conn, $sql);
 while ($row = mysqli_fetch_assoc($result)) {
     $tran = new Transaction();

@@ -46,7 +46,7 @@ if (isset($_GET['restaurant_id']) && isset($_GET['disburse_price']) && isset($_G
     $sql = "INSERT INTO `transaction`( `transfer_user_id`, `recieve_user_id`, `cash`, `type`) VALUES ('$admin_user_id','$user_id','$disburse_price','$type')";
     $result = mysqli_query($conn, $sql);
 
-    $sql = "UPDATE order_product_list SET status = 'success' WHERE status = 'sent_success' product_id IN (SELECT id FROM product WHERE restaurant_id = '$restaurant_id')";
+    $sql = "UPDATE order_product_list SET status = 'success' WHERE status = 'sent_success' AND product_id IN (SELECT id FROM product WHERE restaurant_id = '$restaurant_id')";
     $update = mysqli_query($conn, $sql);
 
     if ($result && $update) {
