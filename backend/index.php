@@ -1,6 +1,6 @@
 <?php
 require '../condb.php';
-if (!isset($_SESSION['id']) && $_SESSION['type'] != 4) {
+if (!isset($_SESSION['id']) || $_SESSION['type'] != 4) {
     header("Refresh:0; login.php");
     return;
 }
