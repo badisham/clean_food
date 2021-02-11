@@ -13,11 +13,11 @@
     <hr class="sidebar-divider my-0">
 
     <!-- Nav Item - Dashboard -->
-    <!-- <li class="nav-item active">
+    <li class="nav-item active">
         <a class="nav-link" href="index.php">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>แดชบอร์ด</span></a>
-    </li> -->
+    </li>
 
     <!-- Divider -->
     <hr class="sidebar-divider">

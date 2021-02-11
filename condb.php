@@ -3,8 +3,15 @@ $dbhost = "localhost";
 $dbuser = "root";
 $dbpass = "";
 $db = "clean_food";
+
+
+// $dbuser = "zazzifbv_clean-food";
+// $dbpass = "1253";
+// $db = "zazzifbv_clean-food";
+
 $conn = new mysqli($dbhost, $dbuser, $dbpass, $db) or die("Connect failed: %s\n" . $conn->error);
 
+mysqli_set_charset($conn, "utf8");
 function CloseCon($conn)
 {
     $conn->close();
@@ -39,7 +46,7 @@ function GetNextDay($input_day, $formatDate = false)
     } else {
         if ($index == 0)
             return "วันนี้";
-        return date("d/m/Y", strtotime('now + ' . $index . ' days'));
+        return date("m/d/Y", strtotime('now + ' . $index . ' days'));
     }
 }
 
@@ -203,7 +210,6 @@ class Address
     public $zip_code;
     public $user_id;
 }
-
 class Amphures
 {
     public $id;
@@ -211,6 +217,14 @@ class Amphures
     public $name_th;
     public $name_en;
 }
+class District
+{
+    public $id;
+    public $name_th;
+    public $name_en;
+    public $amphure_id;
+}
+
 
 class Notificate
 {

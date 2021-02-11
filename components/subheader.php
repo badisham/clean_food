@@ -7,7 +7,10 @@ if (isset($_SESSION['type']) && $_SESSION['type'] == 2) {
     $result = mysqli_query($conn, $sql);
     $order_amount = mysqli_fetch_assoc($result)['order_amount'];
 }
-
+$user_id = $_SESSION['id'];
+$sql = "SELECT COUNT(order_product_list.id) as alert_recieve_order FROM order_product_list INNER JOIN order_product ON order_product_list.order_id = order_product.id WHERE order_product.user_id = '$user_id' AND status in ('wait','confirm','call_rider','rider_recieve')";
+$result = mysqli_query($conn, $sql);
+$alert_recieve_order = mysqli_fetch_assoc($result)['alert_recieve_order'];
 ?>
 <div class="main_nav_container">
     <div class="container">
@@ -71,7 +74,9 @@ if (isset($_SESSION['type']) && $_SESSION['type'] == 2) {
                             }
                             ?>
                             <a href="order-list.php">
-                                <li class="subhead_menu">รายการสั่งซื้อ</li>
+                                <li class="subhead_menu">รายการสั่งซื้อ
+                                    <?php if ($alert_recieve_order > 0) { ?> <span class="badge bg-danger badge-alert"><?= $alert_recieve_order ?></span><?php } ?>
+                                </li>
                             </a>
                             <a href="cart.php">
                                 <li>

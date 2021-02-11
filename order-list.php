@@ -8,8 +8,9 @@ if (isset($_SESSION['id'])) {
     $user_id = $_SESSION['id'];
     $total_sum = 0;
     $products = [];
-    $sql = "SELECT *,product.id as product_id,order_product_list.price as order_price FROM order_product_list
+    $sql = "SELECT *,order_product.created_at as order_created_at ,product.id as product_id,order_product_list.price as order_price FROM order_product_list
     INNER JOIN product ON order_product_list.product_id = product.id
+    INNER JOIN order_product ON order_product.id = order_product_list.order_id
     WHERE order_product_list.order_id in 
     (SELECT id as order_id FROM order_product WHERE user_id = '$user_id') ORDER BY order_product_list.id DESC";
 
@@ -26,6 +27,7 @@ if (isset($_SESSION['id'])) {
             $product->amount = $row['amount'];
             $product->status = $row['status'];
             $product->price_total = $row['amount'] * $product->price;
+            $product->created_at = $row['order_created_at'];
 
             $total_sum += $product->price_total;
             array_push($products, $product);
@@ -89,6 +91,7 @@ require_once 'components/head.php';
                     </div>
                     <?php
                     foreach ($products as $product) {
+                        $nextDay = GetNextDay($product->day);
                     ?>
                         <div class="card">
                             <div class="card-body">
@@ -98,7 +101,8 @@ require_once 'components/head.php';
                                     </div>
                                     <div class="col-3 vertical-mid text-left">
                                         <h4><?= $product->name ?></h4>
-                                        <h6> จัดส่งวันที่ : <?= GetNextDay($product->day) ?></h6>
+                                        <h6> จัดส่งวันที่ : <?= $nextDay != 'วันนี้' ? ThaiDate($nextDay) : $nextDay ?></h6>
+                                        <h6> สั่งซื้อวันที่ : <?= ThaiDate($product->created_at) ?></h6>
                                     </div>
                                     <div class="col-3 vertical-mid">
                                         <?php

@@ -47,28 +47,39 @@ require_once 'components/head.php';
   <div class="container layout-1">
     <div class="row mt-4">
       <div class="col-md-8" style="max-height: 620px;overflow-y: scroll;">
-        <form class="form-inline" method="get" action="restaurant-profile.php">
-          <div class="form-group mt-4">
-            <select class="form-control" id="select_genre" name="select_genre" onchange="OnSelect()">
-              <option value="">-- ทุกประเภท --</option>
-              <option value="food" <?= $select_genre == "food" ? "selected" : "" ?>>อาหาร</option>
-              <option value="sweet" <?= $select_genre == "sweet" ? "selected" : "" ?>>ของหวาน</option>
-            </select>
+        <div class="row">
+          <div class="col-6">
+            <form class="form-inline" method="get" action="restaurant-profile.php">
+              <div class="form-group mt-4">
+                <select class="form-control" id="select_genre" name="select_genre" onchange="OnSelect()">
+                  <option value="">-- ทุกประเภท --</option>
+                  <option value="food" <?= $select_genre == "food" ? "selected" : "" ?>>อาหาร</option>
+                  <option value="sweet" <?= $select_genre == "sweet" ? "selected" : "" ?>>ของหวาน</option>
+                </select>
+              </div>
+              <div class="form-group mt-4 ml-2">
+                <select class="form-control" id="select_day" name="select_day" onchange="OnSelect()">
+                  <option value="">-- ทุกวัน --</option>
+                  <option value="sunday" <?= $select_day == "sunday" ? "selected" : "" ?>>วันอาทิตย์</option>
+                  <option value="monday" <?= $select_day == "monday" ? "selected" : "" ?>>วันจันทร์</option>
+                  <option value="tuesday" <?= $select_day == "tuesday" ? "selected" : "" ?>>วันอังคาร</option>
+                  <option value="wednesday" <?= $select_day == "wednesday" ? "selected" : "" ?>>วันพุธ</option>
+                  <option value="thursday" <?= $select_day == "thursday" ? "selected" : "" ?>>วันพฤหัสบดี</option>
+                  <option value="friday" <?= $select_day == "friday" ? "selected" : "" ?>>วันศุกร์</option>
+                  <option value="saturday" <?= $select_day == "saturday" ? "selected" : "" ?>>วันเสาร์</option>
+                </select>
+              </div>
+              <input type="submit" id="select_filter" style="display: none;">
+
+            </form>
           </div>
-          <div class="form-group mt-4 ml-2">
-            <select class="form-control" id="select_day" name="select_day" onchange="OnSelect()">
-              <option value="">-- ทุกวัน --</option>
-              <option value="sunday" <?= $select_day == "sunday" ? "selected" : "" ?>>วันอาทิตย์</option>
-              <option value="monday" <?= $select_day == "monday" ? "selected" : "" ?>>วันจันทร์</option>
-              <option value="tuesday" <?= $select_day == "tuesday" ? "selected" : "" ?>>วันอังคาร</option>
-              <option value="wednesday" <?= $select_day == "wednesday" ? "selected" : "" ?>>วันพุธ</option>
-              <option value="thursday" <?= $select_day == "thursday" ? "selected" : "" ?>>วันพฤหัสบดี</option>
-              <option value="friday" <?= $select_day == "friday" ? "selected" : "" ?>>วันศุกร์</option>
-              <option value="saturday" <?= $select_day == "saturday" ? "selected" : "" ?>>วันเสาร์</option>
-            </select>
+          <div class="col-6">
+            <button type="button" class="btn btn-primary mt-4 float-right" data-bs-toggle="modal" data-bs-target="#EditRestaurant">
+              แก้ไขร้านค้า
+            </button>
           </div>
-          <input type="submit" id="select_filter" style="display: none;">
-        </form>
+        </div>
+
 
         <table class="table table-striped product_table mt-2">
           <thead>
@@ -221,6 +232,91 @@ require_once 'components/head.php';
         </div>
       </div>
     </div> -->
+  </div>
+
+  <?php
+  $restaurant_m = new Restaurant();
+  $sql = "SELECT *,restaurant.id as restaurant_id FROM `restaurant` INNER JOIN address ON address.id = restaurant.address_id  WHERE restaurant.id = '$restaurant_id'";
+  $result = mysqli_query($conn, $sql);
+  if ($result) {
+    $row = mysqli_fetch_assoc($result);
+    $restaurant_m->id = $row['restaurant_id'];
+    $restaurant_m->name = $row['name'];
+    $restaurant_m->genre = $row['genre'];
+    $restaurant_m->description = $row['description'];
+    $restaurant_m->img = $row['img'];
+    $restaurant_m->address_id = $row['address_id'];
+
+    $address = new Address();
+    $address->address = $row['address'];
+    $address->amphure = $row['amphure'];
+    $address->district = $row['district'];
+    $address->zip_code = $row['zip_code'];
+    $restaurant_m->address = $address;
+  }
+  ?>
+
+  <!-- Modal -->
+  <div class="modal fade" id="EditRestaurant" tabindex="1" aria-labelledby="PayOverdueLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-xs-12 col-md-12">
+              <form action="service/restaurant.php" method="post" enctype="multipart/form-data">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h3 class="panel-title">
+                      แก้ไขร้านค้า
+                    </h3>
+                  </div>
+                  <div class="panel-body">
+                    <div class="form-group mt-4">
+                      <label for="name_restaurant">ชื่อร้าน</label>
+                      <input required type="text" id="name_restaurant" value="<?= $restaurant_m->name ?>" class="form-control bg-light" name="name_restaurant" placeholder="ชื่อร้าน" required>
+                    </div>
+                    <div class="form-group mt-4">
+                      <label for="description">รายละเอียดร้าน</label>
+                      <textarea required type="text" id="description" class="form-control bg-light" name="description" placeholder="รายละเอียดร้าน" required><?= $restaurant_m->description ?></textarea>
+                    </div>
+                    <div class="form-group mt-4">
+                      <label for="genre">ประเภทร้าน</label>
+                      <select class="form-control" id="genre" name="genre" required>
+                        <option>เลือก</option>
+                        <option value="food" <?= $restaurant_m->genre == 'food' ? 'selected' : '' ?>>อาหาร</option>
+                        <option value="sweet" <?= $restaurant_m->genre == 'sweet' ? 'selected' : '' ?>>ของหวาน</option>
+                      </select>
+                    </div>
+                    <div class="form-group mt-4">
+                      <label for="address">
+                        ที่อยู่ร้าน
+                      </label>
+                      <div class="input-group">
+                        <textarea class="form-control" name="address" id="address" cols="30" rows="2" required><?= $restaurant_m->address->address ?></textarea>
+                      </div>
+                    </div>
+                    <input type="hidden" name="address_id" value="<?= $restaurant_m->address_id ?>" />
+                    <div class="row">
+                      <?php
+                      $district_edit =  $restaurant_m->address->district;
+                      $amphure_edit =  $restaurant_m->address->amphure;
+                      require './components/select-address.php'; ?>
+                      <div class="form-group col-xs-4 col-md-4">
+                        <label for="zip_code"></label>
+                        <input type="text" id="zip_code" name="zip_code" class="form-control" value="<?= $restaurant_m->address->zip_code ?>" placeholder="รหัสไปรษณีย์" required>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+            </div>
+          </div>
+          <br />
+          <button type="submit" class="btn btn-primary btn-lg btn-block">แก้ไข</button>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 
 

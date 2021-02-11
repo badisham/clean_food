@@ -15,7 +15,6 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
     LEFT JOIN restaurant ON user.id = restaurant.user_id
     LEFT JOIN rider ON user.id = rider.user_id
     WHERE user.username = '$username' AND user.password = '$password'";
-
     $result = mysqli_query($conn, $sql);
     $is_login = true;
     if ($result) {

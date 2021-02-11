@@ -26,19 +26,27 @@ require_once 'components/head.php';
         // Check new product
         $timeNewProduct = strtotime('-1 day', time());
         // Query data
-        $sql = "SELECT * FROM `restaurant` WHERE id != '$my_restauran_id' ORDER BY id DESC";
+        $sql = "SELECT *,restaurant.id as restaurant_id FROM `restaurant` INNER JOIN address ON address.id = restaurant.address_id WHERE restaurant.id != '$my_restauran_id' ORDER BY restaurant.id DESC";
         $result = mysqli_query($conn, $sql);
         if ($result) {
             if (mysqli_num_rows($result)) {
                 while ($row = mysqli_fetch_assoc($result)) {
-                    $restaurant = new Restaurant;
-                    $restaurant->id = $row['id'];
-                    $restaurant->name = $row['name'];
-                    $restaurant->img = $row['img'];
-                    $restaurant->genre = $row['genre'];
-                    $restaurant->description = $row['description'];
-                    $restaurant->created_at = $row['created_at'];
-                    $restaurants[$row['id']] = $restaurant;
+                    $res = new Restaurant;
+                    $res->id = $row['restaurant_id'];
+                    $res->name = $row['name'];
+                    $res->img = $row['img'];
+                    $res->genre = $row['genre'];
+                    $res->description = $row['description'];
+                    $res->created_at = $row['created_at'];
+
+                    $address = new Address();
+                    $address->address = $row['address'];
+                    $address->amphure = $row['amphure'];
+                    $address->district = $row['district'];
+                    $address->zip_code = $row['zip_code'];
+                    $res->address = $address;
+
+                    $restaurants[$row['restaurant_id']] = $res;
                 }
             }
         }
@@ -75,7 +83,11 @@ require_once 'components/head.php';
                                                     <div class="product_info">
                                                         <h4 style="word-wrap: break-word;margin-top: 20px;">
                                                             <?= $restaurant->name ?> </h4>
-                                                        <!-- <div class="product_price"><?= $restaurant->name ?> </div> -->
+                                                        <p>
+                                                            <?= $restaurant->address->address ?>
+                                                            <?= $restaurant->address->district ?>
+                                                            <?= $restaurant->address->amphure ?>
+                                                            <?= $restaurant->address->zip_code ?></p>
 
                                                     </div>
                                                     <div class="red_button add_to_cart_button"><a href="restaurant.php?restaurant_id=<?= $restaurant->id ?>"> สั่งเลย</a></div>
@@ -106,16 +118,23 @@ require_once 'components/head.php';
 
     <?php
     } else {
-        $restarant = new Restaurant();
-        $sql = "SELECT * FROM `restaurant` WHERE id = '" . $_GET['restaurant_id'] . "'";
+        $restaurant = new Restaurant();
+        $sql = "SELECT *,restaurant.id as restaurant_id FROM `restaurant` INNER JOIN address ON address.id = restaurant.address_id  WHERE restaurant.id = '" . $_GET['restaurant_id'] . "'";
         $result = mysqli_query($conn, $sql);
         if ($result) {
             if (mysqli_num_rows($result)) {
                 while ($row = mysqli_fetch_assoc($result)) {
-                    $restarant->id = $row['id'];
-                    $restarant->name = $row['name'];
-                    $restarant->description = $row['description'];
-                    $restarant->img = $row['img'];
+                    $restaurant->id = $row['restaurant_id'];
+                    $restaurant->name = $row['name'];
+                    $restaurant->description = $row['description'];
+                    $restaurant->img = $row['img'];
+
+                    $address = new Address();
+                    $address->address = $row['address'];
+                    $address->amphure = $row['amphure'];
+                    $address->district = $row['district'];
+                    $address->zip_code = $row['zip_code'];
+                    $restaurant->address = $address;
                 }
             }
         }
@@ -142,15 +161,21 @@ require_once 'components/head.php';
                 }
             }
         }
-        echo $restarant->img;
     ?>
         <div class="restaurant_detail" style="margin-top: 150px;">
 
             <div class="container">
-                <div class="restaurant_img_cover" style="background-image: url(images/restaurant/<?= $restarant->img ?>);"></div>
+                <div class="restaurant_img_cover" style="background-image: url(images/restaurant/<?= $restaurant->img ?>);"></div>
                 <div class="row">
-                    <h2><?= $restarant->name ?></h2>
-                    <p><?= $restarant->description ?></p>
+                    <h2><?= $restaurant->name ?></h2>
+                    <p><?= $restaurant->description ?></p>
+                    <p>ที่อยู่ :
+                        <?= $restaurant->address->address ?>
+                        <?= $restaurant->address->district ?>
+                        <?= $restaurant->address->amphure ?>
+                        <?= $restaurant->address->zip_code ?></p>
+                    </p>
+                    <div style="width:auto; position: absolute;top: 10px;right: 5px;"><a href="https://www.google.com/maps/search/?api=1&query=<?= $order->user_address->address ?>+<?= $order->user_address->district ?>+<?= $order->user_address->amphure ?>" class="btn btn-primary" target="_blank">ดู Map</a></div>
                 </div>
                 <?php
                 if (count($products_clean) > 0) {
@@ -197,7 +222,6 @@ require_once 'components/head.php';
                                 <?php
                                 foreach ($products_sweet as $product) {
                                     if ($product->day != "") {
-
                                 ?>
                                         <tr>
                                             <td width="200">
